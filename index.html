@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>Chromecast - embedded Youtube receiver</title>
+
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/main.css">
+  </head>
+  <body>
+  	<div class="screen screen-idle">
+  		<div class="absolute-center">
+			<img src="img/logo.png">
+			<div class="title">
+				<h1><span class="upper bold">Casting</span>
+					<span class="light">kittens</span>
+				</h1>
+				<h6 class="italic light">
+					An embedded Youtube video experiment
+				</h6>
+			</div>
+  		</div>
+  	</div>
+  	<div class="screen screen-video">
+  		<iframe id="ytplayer" type="text/html" src="about:blank"
+  		frameborder="0" allowfullscreen>
+  		</iframe>
+  	</div>
+
+  	<!-- https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1&controls=0&modestbranding=1&enablejsapi=1&showinfo=0&rel=0-->
+
+  	<!-- Load JS JIT after DOM -->
+  	<script src="js/receiver.js"></script>
+  	<script src="js/UI.js"></script>
+  	<script src="js/YoutubeWrapper.js"></script>
+
+  	<!-- Optional e2e tests -->
+  	<script src="js/e2e/E2ETests.js"></script>
+
+  	<!-- Contains main window.onload function -->
+  	<script src="js/main.js"></script>
+  </body>
+</html>
+​

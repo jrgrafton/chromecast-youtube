@@ -1,0 +1,79 @@
+/*****************************/
+/*** Start - global styles ***/
+/*****************************/
+html, body, iframe, .screen {
+	margin:0px;
+	padding:0px;
+	width:100%;
+	height:100%;
+	overflow:hidden
+}
+body {
+	font-family: 'Open Sans', 'sans-serif';
+	font-size: 14px;
+	background-color: black;
+	color: white;
+}
+h1, h2, h3, h4, h5, h6 {
+	margin: 0.16em;
+}
+/***************************/
+/*** End - global styles ***/
+/***************************/
+
+/******************************/
+/*** Start - utility styles ***/
+/******************************/
+.bold {
+	font-weight: 700;
+}
+.light {
+	font-weight: 300;
+}
+.italic {
+	font-style: italic;
+}
+.title {
+	font-size: 2.7556em;
+}
+.absolute-center {
+	width: 50%;
+	height: 50%;
+	margin: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+/****************************/
+/*** End - utility styles ***/
+/****************************/
+
+/*******************************/
+/*** Start - specific styles ***/
+/*******************************/
+body.idle .screen-idle {
+	opacity: 1;
+}
+body.video .screen-video {
+	opacity: 1;
+}
+.screen {
+	background-color: #444444;
+	opacity: 0;
+	-webkit-transition: opacity 0.5s ease-in-out;
+}
+.screen-idle {
+	text-align: center;
+}
+.screen-idle img {
+	margin: 0 auto;
+}
+.screen-video iframe {
+	width: 100%;
+	height: 100%;
+}
+/*****************************/
+/*** End - specific styles ***/
+/*****************************/
