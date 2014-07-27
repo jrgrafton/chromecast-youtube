@@ -9,8 +9,8 @@ window.onload = function() {
 
 	// Load tests or receiver code depending on environment
 	if(!window.cast) {
-		//window.e2eTests = new E2ETests();
-		//window.e2eTests.runTests();
+		window.e2eTests = new E2ETests();
+		window.e2eTests.runTests();
 	} else {
 		//window.customReceiver = new CustomReceiver();
 	}
