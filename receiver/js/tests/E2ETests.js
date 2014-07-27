@@ -5,7 +5,7 @@ function E2ETests() {
 	this.discoverTests_();
 
 	// Psuedo static vars
-	this.TEST_START_DELAY = 1000 * 10;
+	this.TEST_START_DELAY = 1000;
 	this.NEXT_TEST_DELAY = 1000 * 10;
 }
 
