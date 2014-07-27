@@ -34,7 +34,7 @@ E2ETests.prototype.runNextTest_ = function() {
 							this.runNextTest_();
 						}.bind(this), this.NEXT_TEST_DELAY);
 					} else {
-						alert("tests complete");
+						//alert("tests complete");
 					}
 				}.bind(this));
 			}.bind(this));
