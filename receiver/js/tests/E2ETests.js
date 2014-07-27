@@ -104,9 +104,10 @@ E2ETests.prototype.testStopVideo_ = function(callback) {
 		this.verifyState("unstarted");
 		callback();
 	}.bind(this);
-
-	window.youtubeWrapper.stopVideo();
-	document.addEventListener("video-unstarted", unstartedListener);
+	setTimeout(function() {
+		window.youtubeWrapper.stopVideo();
+		document.addEventListener("video-unstarted", unstartedListener);
+	}, 5000)
 }
 
 E2ETests.prototype.testFinishingVideo_ = function(callback) {
