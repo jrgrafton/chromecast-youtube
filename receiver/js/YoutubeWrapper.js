@@ -135,9 +135,9 @@ YoutubeWrapper.prototype.playerStateChangeEvent_ = function() {
 			stateEvent.data.video_id + "/0.jpg";
 
 		// Set time update interval
-		/* this.updateProgressEvent = setInterval(function() {
+		this.updateProgressEvent = setInterval(function() {
 			this.playerUpdateProgressEvent_();
-		}.bind(this), this.UPDATE_PROGRESS_EVENT_INTERVAL); */
+		}.bind(this), this.UPDATE_PROGRESS_EVENT_INTERVAL);
 	}
 
 	// Prevent Youtube from triggering pause event before finishing
