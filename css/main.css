@@ -79,7 +79,7 @@ body.video-loading .screen-video {
 }
 .screen-idle {
 	z-index: 2;
-	
+
 }
 .screen-idle .container {
 	width: 85%;
@@ -125,13 +125,15 @@ body.video-loading .screen-video {
 	vertical-align: middle;
 	position: relative;
 	z-index: 2;
-	display: none;
+	display: table-cell;
+	opacity: 0;
+	-webkit-transition: opacity 0.5s ease-in-out;
 }
  
 body.video-buffering .screen-video .ui .state-icon-container,
 body.video-paused .screen-video .ui .state-icon-container, 
 body.video-loading .screen-video .ui .state-icon-container {
-	display: table-cell;
+	opacity: 1;
 }
 
 .screen-video .ui .state-icon {
@@ -290,14 +292,15 @@ body.video-loading .screen-video .ui .state-icon .spinner {
 	padding-right: 10%;
 	width: 70%;
 	z-index: 2;
-	display: none;
+	opacity: 0;
+	-webkit-transition: opacity 0.5s ease-in-out;
 }
 
 body.video-info .screen-video .ui .movie-info, 
 body.video-buffering .screen-video .ui .movie-info, 
 body.video-paused .screen-video .ui .movie-info, 
 body.video-loading .screen-video .ui .movie-info {
-	display: block;
+	opacity: 1;
 }
 
 .screen-video .ui .movie-info .meta {
@@ -336,11 +339,7 @@ body.video-loading .screen-video .ui .movie-info {
 	margin-left: 1%;
 	margin-right: 1%;
 	margin-top: 1%;
-}
-
-body.video-loading .screen-video .ui .movie-info .progress .progress-bar {
-	margin-left: 0%;
-	overflow: hidden;	
+	overflow: hidden;
 }
 
 body.video-loading .screen-video .ui .movie-info .progress .progress-bar .elapsed {

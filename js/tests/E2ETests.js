@@ -1,11 +1,12 @@
 function E2ETests() {
-	this.testVideoID_ = "i_mKY2CQ9Kk";
+	this.testVideos_ = ["i_mKY2CQ9Kk", "C_S5cXbXe-4", "GsxBxvjXj2M",
+		"z3U0udLH974", "tntOCGkgt98"];
 	this.tests = [];
 	this.discoverTests_();
 
 	// Psuedo static vars
 	this.TEST_START_DELAY = 1000 * 3;
-	this.NEXT_TEST_DELAY = 1000;
+	this.NEXT_TEST_DELAY = 10000;
 }
 
 E2ETests.prototype.discoverTests_ = function() {
@@ -38,71 +39,93 @@ E2ETests.prototype.runNextTest_ = function() {
 			}.bind(this));
 		}
 		catch(e) {
-			console.error("Aborting test run - test failed with error: " + e.stack);
+			console.error("Aborting test run - test failed with error: "
+				+ e.stack);
 		}
+	} else {
+		alert("tests complete!");
 	}
 }
 
 E2ETests.prototype.setup_ = function(callback) {
 	window.youtubeWrapper.stopVideo();
-	window.youtubeWrapper.loadVideo(this.testVideoID_, function() {
+	var playListener = function(e) {
+		document.removeEventListener("video-playing", playListener);
 		callback();
-	}.bind(this))
+	}.bind(this);
+
+	document.addEventListener("video-playing", playListener);
+	window.youtubeWrapper.loadVideo(this.testVideos_.shift(), function() {});
 }
 
-E2ETests.prototype.testLoadingVideo_ = function(callback) {
-	var playerState = window.youtubeWrapper.getState();
-	// TODO: Check player state (expected playing)
-	callback();
+E2ETests.prototype.testResumeVideo_ = function(callback) {
+	var playListener = function() {
+		this.verifyState("playing");
+		callback();
+	}.bind(this);
+	var pauseListener = function(e) {
+		document.removeEventListener("video-paused", pauseListener);
+		setTimeout(function() {
+			window.youtubeWrapper.playVideo();
+			document.addEventListener("video-playing", playListener);
+		}, 2000);
+	}.bind(this);
+
+	document.addEventListener("video-paused", pauseListener);
+	window.youtubeWrapper.pauseVideo();
 }
 
-/* E2ETests.prototype.testPausingVideo_ = function(callback) {
-	window.youtubeWrapper.pauseVideo(function() {
-		var playerState = window.youtubeWrapper.getState();
-		// TODO: Check player state (expected paused)
-	});
-	callback();
+E2ETests.prototype.testPausingVideo_ = function(callback) {
+	var pauseListener = function(e) {
+		document.removeEventListener("video-paused", pauseListener);
+		this.verifyState("paused");
+		callback();
+	}.bind(this);
+
+	document.addEventListener("video-paused", pauseListener);
+	window.youtubeWrapper.pauseVideo();
 }
 
-E2ETests.prototype.testPlayingVideo_ = function(callback) {
-	window.youtubeWrapper.pauseVideo(function() {
-		window.youtubeWrapper.playVideo(function() {
-			// TODO: Check state
-			var playerState = window.youtubeWrapper.getState();
-			callback();
-		});
-	});
-}
 
 E2ETests.prototype.testSeekVideo_ = function(callback) {
+	var bufferingListener = function() {
+		document.removeEventListener("video-buffering", bufferingListener);
+		this.verifyState("buffering");
+		callback();
+	}.bind(this);
+
+	document.addEventListener("video-buffering", bufferingListener);
 	var seekTo = Math.round(window.youtubeWrapper.getVideoLength() / 2);
-	window.youtubeWrapper.seekVideo(seekTo, function() {
-		window.youtubeWrapper.pauseVideo(function() {
-			var playerProgress = window.youtubeWrapper.getVideoProgress();
-			if(playerProgress !== seekTo) {
-				//throw new exception() // TODO: Update syntax
-			}
-			callback();
-		})
-	});
+	window.youtubeWrapper.seekVideo(seekTo);
 }
 
 E2ETests.prototype.testStopVideo_ = function(callback) {
-	// Throw exception if fail to prevent further tests
-	window.youtubeWrapper.stopVideo(function() {
-		var playerState = window.youtubeWrapper.getState();
-		// TODO: Check player state (expected stopped)
+	var unstartedListener = function() {
+		document.removeEventListener("video-unstarted", unstartedListener);
+		this.verifyState("unstarted");
 		callback();
-	});
+	}.bind(this);
+	window.youtubeWrapper.stopVideo();
+	document.addEventListener("video-unstarted", unstartedListener);
 }
 
 E2ETests.prototype.testFinishingVideo_ = function(callback) {
-	// Throw exception if fail to prevent further tests
-	var movieLength = window.youtubeWrapper.getVideoLength();
-	window.youtubeWrapper.seekVideo(movieLength, function() {
-		// Wait for it to end
+	var endedListener = function() {
+		document.removeEventListener("video-ended", endedListener);
 		setTimeout(function() {
+			this.verifyState("ended");
 			callback();
-		}, 1000);
-	});
-} */
+		}.bind(this), 1000);
+	}.bind(this);
+	document.addEventListener("video-ended", endedListener);
+
+	var movieLength = window.youtubeWrapper.getVideoLength() - 1;
+	window.youtubeWrapper.seekVideo(movieLength);
+}
+
+E2ETests.prototype.verifyState = function(expectedState) {
+	var playerState = window.youtubeWrapper.getState();
+	if(playerState !== expectedState) {
+		throw "Expected: video to be in " + expectedState + " state"
+	}
+}

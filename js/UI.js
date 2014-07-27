@@ -29,6 +29,7 @@ UI.prototype.getState = function() {
 
 UI.prototype.subscribeToEvents_ = function() {
 	document.addEventListener("video-loading", function() {
+		this.resetVideoMeta_();
 		this.eventVideoLoading_();
 	}.bind(this));
 
@@ -45,8 +46,20 @@ UI.prototype.subscribeToEvents_ = function() {
 		this.eventVideoPause_();
 	}.bind(this));
 
-	document.addEventListener("video-buffering", function() {
-		this.eventVideoExtendedBuffering();
+	document.addEventListener("video-stopped", function() {
+		clearTimeout(this.pauseIdleTimeoutFunction);
+		clearTimeout(this.switchToPlayingTimeoutFunction);
+		this.switchToState("idle");
+	}.bind(this));
+
+	document.addEventListener("video-ended", function() {
+		clearTimeout(this.pauseIdleTimeoutFunction);
+		clearTimeout(this.switchToPlayingTimeoutFunction);
+		this.switchToState("idle");
+	}.bind(this));
+
+	document.addEventListener("video-buffering", function(e) {
+		this.eventVideoBuffering_();
 	}.bind(this));
 }
 
@@ -57,15 +70,32 @@ UI.prototype.eventVideoLoading_ = function() {
 
 UI.prototype.secondsToTime_ = function(seconds) {
 	var minutes = parseInt(Math.floor(seconds / 60));
-	var seconds = "" + parseInt(seconds % 60);
-	if(seconds.length === 1) "0" + seconds;
+	var seconds = parseInt(seconds % 60);
+	if(isNaN(minutes)) minutes = 0;
+	if(isNaN(seconds)) seconds = 0;
+
+	if(seconds < 10) seconds = "0" + seconds;
 	return minutes + ":" + seconds;
 } 
 
-UI.prototype.updateVideoMeta_ = function(data) {
-	document.querySelector(".movie-info .author").innerHTML = data.author;
-	document.querySelector(".movie-info .title").innerHTML = data.title;
+UI.prototype.resetVideoMeta_ = function(data) {
+	document.querySelector(".movie-info .author").innerHTML = "Loading...";
+	document.querySelector(".movie-info .title").innerHTML = "";
 
+	document.querySelector(".movie-info .time-elapsed").innerHTML = "--:--";
+	document.querySelector(".movie-info .time-total").innerHTML = "--:--";
+
+	document.querySelector(".movie-info .movie-logo").setAttribute("style", "");
+	document.querySelector(".movie-info .progress-bar .elapsed").setAttribute(
+		"style", "width:0%");
+}
+
+UI.prototype.updateVideoMeta_ = function(data) {
+	if(data.author.length !== 0) {
+		document.querySelector(".movie-info .author").innerHTML = 
+			data.author + ": ";
+		document.querySelector(".movie-info .title").innerHTML = data.title;
+	} 
 	document.querySelector(".movie-info .time-elapsed").innerHTML =
 		this.secondsToTime_(data.videoProgress);
 	document.querySelector(".movie-info .time-total").innerHTML =
@@ -97,6 +127,7 @@ UI.prototype.eventVideoPlaying_ = function() {
 
 UI.prototype.eventVideoPause_ = function() {
 	clearTimeout(this.pauseIdleTimeoutFunction);
+	clearTimeout(this.switchToPlayingTimeoutFunction);
 
 	this.switchToState("video-paused");
 	this.pauseIdleTimeoutFunction = setTimeout(function() {
@@ -107,5 +138,7 @@ UI.prototype.eventVideoPause_ = function() {
 }
 
 UI.prototype.eventVideoBuffering_ = function() {
+	clearTimeout(this.switchToPlayingTimeoutFunction);
+
 	this.switchToState("video-buffering");
 }

@@ -20,11 +20,9 @@ function YoutubeWrapper(iframeElement) {
 
 YoutubeWrapper.prototype.loadVideo = function(id, callback) {
 	console.debug("YoutubeWrapper.js: loadVideo(" + id + ")");
+	document.dispatchEvent(new Event("video-loading"));
 
 	if(this.ytPlayer === null) {
-		// Dispatch video loading event
-		document.dispatchEvent(new Event("video-loading"));
-
 		this.ytPlayer = new YT.Player('ytplayer', {
 			videoId: id,
 			playerVars: this.playerDefaultParams,
@@ -48,27 +46,26 @@ YoutubeWrapper.prototype.loadVideo = function(id, callback) {
 	}
 }
 
-YoutubeWrapper.prototype.pauseVideo = function(callback) {
+YoutubeWrapper.prototype.pauseVideo = function() {
 	console.debug("YoutubeWrapper.js: pauseVideo()");
 	this.ytPlayer.pauseVideo();
-	callback();
 }
 
-YoutubeWrapper.prototype.playVideo = function(callback) {
+YoutubeWrapper.prototype.playVideo = function() {
 	console.debug("YoutubeWrapper.js: playVideo()");
-	this.ytPlayer.stopVideo();
-	callback();
+	this.ytPlayer.playVideo();
 }
 
 YoutubeWrapper.prototype.stopVideo = function() {
 	console.debug("YoutubeWrapper.js: stopVideo()");
+	document.dispatchEvent(new Event("video-stopped"));
 	if(this.ytPlayer !== null) this.ytPlayer.stopVideo();
+	clearInterval(this.updateProgressEvent);
 }
 
-YoutubeWrapper.prototype.seekVideo = function(seconds, callback) {
+YoutubeWrapper.prototype.seekVideo = function(seconds) {
 	console.debug("YoutubeWrapper.js: seekTo(" + seconds + ")");
 	this.ytPlayer.seekTo(seconds, true);
-	callback();
 }
 
 YoutubeWrapper.prototype.getState = function() {
@@ -126,6 +123,7 @@ YoutubeWrapper.prototype.playerStateChangeEvent_ = function() {
 	console.debug("YoutubeWrapper.js: playerStateChangeEvent_()");
 	console.debug("State: " + this.getStateText_());
 
+	clearInterval(this.updateProgressEvent);
 	var stateEvent =  new Event("video-" + this.getStateText_());
 	if(this.getStateText_() === "playing") {
 		// Augment event with video data
@@ -139,8 +137,14 @@ YoutubeWrapper.prototype.playerStateChangeEvent_ = function() {
 		this.updateProgressEvent = setInterval(function() {
 			this.playerUpdateProgressEvent_();
 		}.bind(this), this.UPDATE_PROGRESS_EVENT_INTERVAL);
-	} else {
-		clearInterval(this.updateProgressEvent);
+	}
+
+	// Prevent Youtube from triggering pause event before finishing
+	if(this.getStateText_() === "paused") {
+		if(this.getVideoLength() - this.getVideoProgress() < 1) {
+			// Override event with video ended
+			var stateEvent =  new Event("video-ended");
+		}
 	}
 
 	// Dispatch event upon Youtube player state change
