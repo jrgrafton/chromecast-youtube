@@ -5,41 +5,94 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>Chromecast - embedded Youtube receiver</title>
 
+    <link href='http://fonts.googleapis.com/css?family=Roboto:900,400,300,300italic' 
+      rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/main.css">
   </head>
   <body>
   	<div class="screen screen-idle">
-  		<div class="absolute-center">
-			<img src="img/logo.png">
-			<div class="title">
-				<h1><span class="upper bold">Casting</span>
-					<span class="light">kittens</span>
-				</h1>
-				<h6 class="italic light">
-					An embedded Youtube video experiment
-				</h6>
-			</div>
-  		</div>
+      <div class="container">
+        <div class="logo">
+            <img src="img/cat.png">
+        </div>
+  			<div class="title">
+  				<h1><span class="upper ultra-bold">Casting</span>
+  					<span class="light">kittens</span>
+  				</h1>
+  				<h3 class="italic light">
+  					An embedded Youtube video experiment
+  				</h3>
+          <div class="youtube-logo">
+            <img src="img/youtube-logo.png">
+            <h4>Ready to Cast</h4>
+          </div>
+  			</div>
+      </div>
   	</div>
   	<div class="screen screen-video">
-  		<iframe id="ytplayer" type="text/html" src="about:blank"
-  		frameborder="0" allowfullscreen>
-  		</iframe>
+  		<div id="ytplayer" type="text/html"  frameborder="0" allowfullscreen></div>
+      <div class="ui">
+        <div class="state-icon-container">
+          <div class="state-icon">
+            <div class="pause-icon"></div>
+            <div class="spinner">
+              <div class="spinner-container container1">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+              </div>
+              <div class="spinner-container container2">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+              </div>
+              <div class="spinner-container container3">
+                <div class="circle1"></div>
+                <div class="circle2"></div>
+                <div class="circle3"></div>
+                <div class="circle4"></div>
+              </div>
+              </div>
+          </div>
+        </div>
+
+        <div class="movie-info">
+          <div class="meta">
+            <h4 class="author ultra-bold">Loading...</h4>
+            <h4 class="title light"></h4>
+          </div>
+          <div class="progress">
+            <h4 class="time-elapsed light"></h4>
+            <span class="progress-bar">
+              <div class="elapsed"></div>
+            </span>
+            <h4 class="time-total light"></h4>
+          </div>
+          <div class="info">
+            <div class="movie-logo"></div>
+            <div class="company-logo"></div>
+          </div>
+      </div>
+      </div>
   	</div>
 
   	<!-- https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1&controls=0&modestbranding=1&enablejsapi=1&showinfo=0&rel=0-->
 
   	<!-- Load JS JIT after DOM -->
-  	<script src="js/receiver.js"></script>
   	<script src="js/UI.js"></script>
   	<script src="js/YoutubeWrapper.js"></script>
 
-  	<!-- Optional e2e tests -->
-  	<script src="js/e2e/E2ETests.js"></script>
+  	<!-- Optional e2e / recever. TODO: dynamic injection at runtime -->
+  	<script src="js/CustomReceiver.js"></script>
+  	<script src="js/tests/E2ETests.js"></script>
 
   	<!-- Contains main window.onload function -->
   	<script src="js/main.js"></script>
+
+    <!-- Youtube iframe API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
   </body>
 </html>
-​
