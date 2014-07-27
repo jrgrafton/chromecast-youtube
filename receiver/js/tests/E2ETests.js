@@ -119,7 +119,7 @@ E2ETests.prototype.testFinishingVideo_ = function(callback) {
 	}.bind(this);
 	document.addEventListener("video-ended", endedListener);
 
-	var movieLength = window.youtubeWrapper.getVideoLength() - 1;
+	var movieLength = window.youtubeWrapper.getVideoLength() - 10;
 	window.youtubeWrapper.seekVideo(movieLength);
 }
 
