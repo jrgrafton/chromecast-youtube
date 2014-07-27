@@ -299,7 +299,7 @@ body.video-loading .screen-video .ui .state-icon .spinner {
 
 
 .screen-video .ui .movie-info {
-	position: absolute;
+	position: absolute; 
 	bottom: 0px;
 	left: 0px;
 	display: table-cell;
