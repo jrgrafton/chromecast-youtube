@@ -5,8 +5,8 @@ function E2ETests() {
 	this.discoverTests_();
 
 	// Psuedo static vars
-	this.TEST_START_DELAY = 1000 * 3;
-	this.NEXT_TEST_DELAY = 10000;
+	this.TEST_START_DELAY = 1000 * 10;
+	this.NEXT_TEST_DELAY = 1000 * 10;
 }
 
 E2ETests.prototype.discoverTests_ = function() {
@@ -34,7 +34,7 @@ E2ETests.prototype.runNextTest_ = function() {
 							this.runNextTest_();
 						}.bind(this), this.NEXT_TEST_DELAY);
 					} else {
-						alert("tests complete");
+						//alert("tests complete");
 					}
 				}.bind(this));
 			}.bind(this));
@@ -65,8 +65,8 @@ E2ETests.prototype.testResumeVideo_ = function(callback) {
 	var pauseListener = function(e) {
 		document.removeEventListener("video-paused", pauseListener);
 		setTimeout(function() {
-			window.youtubeWrapper.playVideo();
 			document.addEventListener("video-playing", playListener);
+			window.youtubeWrapper.playVideo();
 		}, 2000);
 	}.bind(this);
 
@@ -104,9 +104,10 @@ E2ETests.prototype.testStopVideo_ = function(callback) {
 		this.verifyState("unstarted");
 		callback();
 	}.bind(this);
-
-	window.youtubeWrapper.stopVideo();
-	document.addEventListener("video-unstarted", unstartedListener);
+	setTimeout(function() {
+		window.youtubeWrapper.stopVideo();
+		document.addEventListener("video-unstarted", unstartedListener);
+	}, 5000)
 }
 
 E2ETests.prototype.testFinishingVideo_ = function(callback) {
@@ -119,7 +120,7 @@ E2ETests.prototype.testFinishingVideo_ = function(callback) {
 	}.bind(this);
 	document.addEventListener("video-ended", endedListener);
 
-	var movieLength = window.youtubeWrapper.getVideoLength() - 1;
+	var movieLength = window.youtubeWrapper.getVideoLength() - 10;
 	window.youtubeWrapper.seekVideo(movieLength);
 }
 

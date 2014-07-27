@@ -299,12 +299,12 @@ body.video-loading .screen-video .ui .state-icon .spinner {
 
 
 .screen-video .ui .movie-info {
-	position: absolute;
+	position: absolute; 
 	bottom: 0px;
 	left: 0px;
 	display: table-cell;
 	vertical-align: middle;
-	height: 15%;
+	height: 14%;
 	width: 100%;
 	background: rgba(0, 0, 0, 0.77);
 	padding-top: 1.5%;
@@ -314,6 +314,7 @@ body.video-loading .screen-video .ui .state-icon .spinner {
 	z-index: 2;
 	opacity: 0;
 	-webkit-transition: opacity 0.5s ease-in-out;
+	min-height: 150px;
 }
 
 body.video-info .screen-video .ui .movie-info, 

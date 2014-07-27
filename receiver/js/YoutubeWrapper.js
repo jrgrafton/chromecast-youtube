@@ -5,7 +5,8 @@ function YoutubeWrapper(iframeElement) {
 	this.iframeElement = iframeElement;
 	this.playerEmbedURL = "https://www.youtube.com/embed/";
 	this.playerDefaultParams = {
-		'autoplay': "1", 
+		'autoplay': "1",
+		'autohide': "1", 
 		'controls': "0",
 		'modestbranding': "1",
 		'enablejsapi': "1",
