@@ -25,16 +25,17 @@ E2ETests.prototype.runTests = function() {
 }
 
 E2ETests.prototype.runNextTest_ = function() {
-	if(this.tests.length > 0) {
 		try {
 			var testName = this.tests.shift();
 			this.setup_(function() {
-				console.info("Running test: " + testName);
 				this[testName](function() {
-					setTimeout(function() {
-						this.runNextTest_();
-					}.bind(this), this.NEXT_TEST_DELAY)
-					
+					if(this.tests.length > 0) {
+						setTimeout(function() {
+							this.runNextTest_();
+						}.bind(this), this.NEXT_TEST_DELAY);
+					} else {
+						alert("tests complete");
+					}
 				}.bind(this));
 			}.bind(this));
 		}
@@ -42,9 +43,6 @@ E2ETests.prototype.runNextTest_ = function() {
 			console.error("Aborting test run - test failed with error: "
 				+ e.stack);
 		}
-	} else {
-		alert("tests complete!");
-	}
 }
 
 E2ETests.prototype.setup_ = function(callback) {
@@ -60,6 +58,7 @@ E2ETests.prototype.setup_ = function(callback) {
 
 E2ETests.prototype.testResumeVideo_ = function(callback) {
 	var playListener = function() {
+		document.removeEventListener("video-playing", playListener);
 		this.verifyState("playing");
 		callback();
 	}.bind(this);
@@ -105,6 +104,7 @@ E2ETests.prototype.testStopVideo_ = function(callback) {
 		this.verifyState("unstarted");
 		callback();
 	}.bind(this);
+
 	window.youtubeWrapper.stopVideo();
 	document.addEventListener("video-unstarted", unstartedListener);
 }

@@ -14,6 +14,13 @@ body {
 	background-color: black;
 	color: #eceff0;
 }
+@media only screen 
+and (max-width: 1919px) {
+	body {
+		font-size: 10px;
+	}
+}
+
 h1 {
 	font-size: 8em;
 }
@@ -93,6 +100,12 @@ body.video-loading .screen-video {
 }
 .screen-idle .container .logo {
 	float:left;
+	width: 40%;
+	height: 100%;
+	background-image: url('../img/cat.png');
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .screen-idle .container .title {
@@ -103,6 +116,13 @@ body.video-loading .screen-video {
 .screen-idle .container .title .youtube-logo {
 	text-align: center;
 	margin-top: 5em;
+}
+
+@media only screen 
+and (max-width: 1919px) {
+	.screen-idle .container .title .youtube-logo img {
+		width: 170px;
+	}
 }
 
 .screen-video #ytplayer {
@@ -344,7 +364,7 @@ body.video-loading .screen-video .ui .movie-info {
 
 body.video-loading .screen-video .ui .movie-info .progress .progress-bar .elapsed {
 	-webkit-animation: loading 2s linear infinite;
-	width: 20%;
+	width: 20% !important;
 }
 
 .screen-video .ui .movie-info .progress .progress-bar .elapsed {
@@ -374,6 +394,15 @@ body.video-loading .screen-video .ui .movie-info .progress .progress-bar .elapse
 	background-position: center;
 	margin-top: -125px;
 	margin-left: 62px;
+}
+
+@media only screen 
+and (max-width: 1919px) {
+	.screen-video .ui .movie-info .info .movie-logo {
+		height: 175px;
+		width: 175px;
+		margin-top: -88px;
+	}
 }
 
 .screen-video .ui .movie-info .info .company-logo {
