@@ -67,8 +67,8 @@ YoutubeWrapper.prototype.playVideo = function() {
 
 YoutubeWrapper.prototype.stopVideo = function() {
 	console.debug("YoutubeWrapper.js: stopVideo()");
-	document.dispatchEvent(new Event("video-stopped"));
 	if(this.ytPlayer !== null) this.ytPlayer.stopVideo();
+	document.dispatchEvent(new Event("video-stopped"));
 	clearInterval(this.updateProgressEvent);
 }
 
@@ -137,7 +137,6 @@ YoutubeWrapper.prototype.playerStateChangeEvent_ = function() {
 	var stateEvent =  new Event("video-" + this.getStateText_());
 	if(this.getStateText_() === "playing") {
 		window.videoInformationCallback = function(data) {
-			console.log(data);
 			// Video data needs to be fetched via AJAX for SWF embeds
 			stateEvent.data = {
 				author: data.entry.author[0].name.$t, 
@@ -147,7 +146,6 @@ YoutubeWrapper.prototype.playerStateChangeEvent_ = function() {
 			stateEvent.data.videoLength = this.getVideoLength();
 			stateEvent.data.image = "http://img.youtube.com/vi/" +
 				this.currentVideoID + "/0.jpg";
-			console.log(stateEvent.data);
 			// Set time update interval
 			this.updateProgressEvent = setInterval(function() {
 				this.playerUpdateProgressEvent_();
