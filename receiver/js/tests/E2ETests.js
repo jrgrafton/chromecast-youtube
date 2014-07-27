@@ -65,8 +65,8 @@ E2ETests.prototype.testResumeVideo_ = function(callback) {
 	var pauseListener = function(e) {
 		document.removeEventListener("video-paused", pauseListener);
 		setTimeout(function() {
-			window.youtubeWrapper.playVideo();
 			document.addEventListener("video-playing", playListener);
+			window.youtubeWrapper.playVideo();
 		}, 2000);
 	}.bind(this);
 
