@@ -9,9 +9,9 @@ window.onload = function() {
 
 	// Load tests or receiver code depending on environment
 	if(!window.cast) {
-		/* console.log = function() {}
+		console.log = function() {}
 		console.debug = function() {}
-		console.info = function() {} */
+		console.info = function() {}
 
 		window.e2eTests = new E2ETests();
 		window.e2eTests.runTests();
