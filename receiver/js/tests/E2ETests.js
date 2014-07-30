@@ -110,6 +110,13 @@ E2ETests.prototype.testStopVideo_ = function(callback) {
 	}, 5000)
 }
 
+E2ETests.prototype.verifyState = function(expectedState) {
+	var playerState = window.youtubeWrapper.getState();
+	if(playerState !== expectedState) {
+		throw "Expected: video to be in " + expectedState + " state"
+	}
+}
+
 E2ETests.prototype.testFinishingVideo_ = function(callback) {
 	var endedListener = function() {
 		document.removeEventListener("video-ended", endedListener);
@@ -122,11 +129,4 @@ E2ETests.prototype.testFinishingVideo_ = function(callback) {
 
 	var movieLength = window.youtubeWrapper.getVideoLength() - 10;
 	window.youtubeWrapper.seekVideo(movieLength);
-}
-
-E2ETests.prototype.verifyState = function(expectedState) {
-	var playerState = window.youtubeWrapper.getState();
-	if(playerState !== expectedState) {
-		throw "Expected: video to be in " + expectedState + " state"
-	}
 }
