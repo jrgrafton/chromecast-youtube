@@ -91,7 +91,7 @@ UI.prototype.resetVideoMeta_ = function(data) {
 }
 
 UI.prototype.updateVideoMeta_ = function(data) {
-	if(data.author.length !== 0) {
+	if(data.author && data.author.length !== 0) {
 		document.querySelector(".movie-info .author").innerHTML = 
 			data.author + ": ";
 		document.querySelector(".movie-info .title").innerHTML = data.title;

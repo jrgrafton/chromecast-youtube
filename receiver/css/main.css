@@ -79,7 +79,6 @@ body.video-loading .screen-video {
 .screen {
 	background-color: #444444;
 	display: none;
-	/* -webkit-transition: opacity 0.5s ease-in-out; */
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -313,7 +312,7 @@ body.video-loading .screen-video .ui .movie-info {
 
 body.video-loading .screen-video .ui .movie-info .progress .progress-bar .elapsed {
 	width: 20% !important;
-	-webkit-animation: loading 2s steps(10) infinite;
+	-webkit-animation: loading 2s steps(5) infinite;
 	
 }
 

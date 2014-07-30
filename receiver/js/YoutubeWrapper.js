@@ -16,7 +16,7 @@ function YoutubeWrapper(iframeElement) {
 
 	this.ytPlayer = null;
 	this.updateProgressEvent = null;
-	this.UPDATE_PROGRESS_EVENT_INTERVAL = 500;
+	this.UPDATE_PROGRESS_EVENT_INTERVAL = 800;
 }
 
 YoutubeWrapper.prototype.loadVideo = function(id, callback) {
@@ -49,11 +49,21 @@ YoutubeWrapper.prototype.loadVideo = function(id, callback) {
 
 YoutubeWrapper.prototype.pauseVideo = function() {
 	console.debug("YoutubeWrapper.js: pauseVideo()");
+
+	// Dispatch event instantly to make Chromecast feel more responsive
+	/* var stateEvent =  new Event("video-paused");
+	document.dispatchEvent(stateEvent); */
+
 	this.ytPlayer.pauseVideo();
 }
 
 YoutubeWrapper.prototype.playVideo = function() {
 	console.debug("YoutubeWrapper.js: playVideo()");
+
+	// Dispatch event instantly to make Chromecast feel more responsive
+	/* var stateEvent =  new Event("video-playing");
+	document.dispatchEvent(stateEvent); */
+
 	this.ytPlayer.playVideo();
 }
 
@@ -66,6 +76,14 @@ YoutubeWrapper.prototype.stopVideo = function() {
 
 YoutubeWrapper.prototype.seekVideo = function(seconds) {
 	console.debug("YoutubeWrapper.js: seekTo(" + seconds + ")");
+
+	// Dispatch event instantly to make Chromecast feel more responsive
+	var stateEvent =  new Event("video-update-progress");
+	stateEvent.data = {};
+	stateEvent.data.videoProgress = seconds;
+	stateEvent.data.videoLength = this.getVideoLength();
+	document.dispatchEvent(stateEvent);
+
 	this.ytPlayer.seekTo(seconds, true);
 }
 
