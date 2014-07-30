@@ -82,7 +82,12 @@ E2ETests.prototype.testPausingVideo_ = function(callback) {
 	}.bind(this);
 
 	document.addEventListener("video-paused", pauseListener);
-	window.youtubeWrapper.pauseVideo();
+
+	setTimeout(function() {
+		// To give video extra time to load on Chromecast
+		window.youtubeWrapper.pauseVideo();
+	}, 2000);
+	
 }
 
 
