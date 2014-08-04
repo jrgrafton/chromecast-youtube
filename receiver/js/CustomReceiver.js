@@ -32,16 +32,26 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
 	// Save original references
-	this.mediaOrigOnLoad_ = this.mediaManager_.onLoad.bind(this);
-	this.mediaOrigOnPause_ = this.mediaManager_.onPause.bind(this);
-	this.mediaOrigOnPlay_ = this.mediaManager_.onPlay.bind(this);
-	this.mediaOrigOnStop_ = this.mediaManager_.onStop.bind(this);
-	this.mediaOrigOnSeek_ = this.mediaManager_.onSeek.bind(this);
-	this.mediaOrigOnSetVolume_ = this.mediaManager_.onSetVolume.bind(this);
-	this.mediaOrigOnGetStatus_ = this.mediaManager_.onGetStatus.bind(this);
+	//this.mediaOrigOnLoad_ = this.mediaManager_.onLoad;
+	this.mediaOrigOnPause_ = this.mediaManager_.onPause;
+	this.mediaOrigOnPlay_ = this.mediaManager_.onPlay;
+	this.mediaOrigOnStop_ = this.mediaManager_.onStop;
+	this.mediaOrigOnSeek_ = this.mediaManager_.onSeek;
+	this.mediaOrigOnSetVolume_ = this.mediaManager_.onSetVolume;
+	this.mediaOrigOnGetStatus_ = this.mediaManager_.onGetStatus;
 
 	// Hijack functions
-	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+
+	this.mediaManager_.onLoad = (function() {
+    	var origOnLoad = mediaManager.onPlay;
+	    return function(event) {
+	        this.mediaOnLoadEvent_(event);
+	        origOnLoad(event);
+	    }.bind(this);
+	}.bind(this)());
+
+
+	//this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
