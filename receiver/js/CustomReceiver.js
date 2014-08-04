@@ -1,18 +1,18 @@
 function CustomReceiver() {
 	// Initialise object vars
-	this.mediaElement = null;
-	this.mediaManager = null;
-	this.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+	this.mediaElement_ = null;
+	this.mediaManager_ = null;
+	this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
 
 	// Events that need to be hijacked for Youtube playback
-	this.mediaOrigOnLoad = null;
-	this.mediaOrigOnPause = null;
-	this.mediaOrigOnPlay = null;
-	this.mediaOrigOnStop = null;
+	this.mediaOrigOnLoad_ = null;
+	this.mediaOrigOnPause_ = null;
+	this.mediaOrigOnPlay_ = null;
+	this.mediaOrigOnStop_ = null;
 
-	this.mediaOrigOnSeek = null;
-	this.mediaOnSetVolume = null;
-	this.mediaOrigOnGetStatus = null;
+	this.mediaOrigOnSeek_ = null;
+	this.mediaOnSetVolume_ = null;
+	this.mediaOrigOnGetStatus_ = null;
 
 	// Startup functions
 	this.initialiseMediaManagement_()
@@ -23,8 +23,8 @@ function CustomReceiver() {
 
 CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	console.debug("CustomReceiver.js: initialiseMediaManagement_()");
-	this.mediaElement = document.getElementById('media');
-	this.mediaManager = new cast.receiver.MediaManager(this.mediaElement);
+	this.mediaElement_ = document.getElementById('media');
+	this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
 
 	this.hijackMediaEvents_();
 }
@@ -32,28 +32,28 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
 	// Save original references
-	this.mediaOrigOnLoad = this.mediaManager.onLoad;
-	this.mediaOrigOnPause = this.mediaManager.onPause;
-	this.mediaOrigOnPlay = this.mediaManager.onPlay;
-	this.mediaOrigOnStop = this.mediaManager.onStop;
-	this.mediaOrigOnSeek = this.mediaManager.onSeek;
-	this.mediaOnSetVolume = this.mediaManager.onSetVolume;
-	this.mediaOrigOnGetStatus = this.mediaManager.onGetStatus;
+	this.mediaOrigOnLoad = this.mediaManager_.onLoad;
+	this.mediaOrigOnPause = this.mediaManager_.onPause;
+	this.mediaOrigOnPlay = this.mediaManager_.onPlay;
+	this.mediaOrigOnStop = this.mediaManager_.onStop;
+	this.mediaOrigOnSeek = this.mediaManager_.onSeek;
+	this.mediaOnSetVolume = this.mediaManager_.onSetVolume;
+	this.mediaOrigOnGetStatus = this.mediaManager_.onGetStatus;
 
 	// Hijack functions
-	this.mediaManager.onLoad = this.mediaOnLoadEvent_;
-	this.mediaManager.onPause = this.mediaOnPauseEvent_;
-	this.mediaManager.onPlay = this.mediaOnPlayEvent_;
-	this.mediaManager.onStop = this.mediaOnStopEvent_;
-	this.mediaManager.onSeek = this.mediaOnSeekEvent_;
-	this.mediaManager.onSetVolume = this.mediaOnSetVolumeEvent_;
-	this.mediaManager.onGetStatus = this.mediaOnGetStatusEvent_;
+	this.mediaManager_.onLoad = this.mediaOnLoadEvent_;
+	this.mediaManager_.onPause = this.mediaOnPauseEvent_;
+	this.mediaManager_.onPlay = this.mediaOnPlayEvent_;
+	this.mediaManager_.onStop = this.mediaOnStopEvent_;
+	this.mediaManager_.onSeek = this.mediaOnSeekEvent_;
+	this.mediaManager_.onSetVolume = this.mediaOnSetVolumeEvent_;
+	this.mediaManager_.onGetStatus = this.mediaOnGetStatusEvent_;
 }
 
 CustomReceiver.prototype.initialiseSessionManagement_ = function() {
 	console.debug("CustomReceiver.js: initialiseSessionManagement_()");
-	this.castReceiverManager.onSenderDisconnected = function(event) {
-	  	if(this.castReceiverManager.getSenders().length == 0 &&
+	this.castReceiverManager_.onSenderDisconnected = function(event) {
+	  	if(this.castReceiverManager_.getSenders().length == 0 &&
 	    	event.reason == 
 	    	cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
 	      window.close();
@@ -67,7 +67,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 	var appConfig = new cast.receiver.CastReceiverManager.Config();
 	appConfig.statusText = 'Ready to play';
 	appConfig.maxInactivity = 6000;
-	this.castReceiverManager.start(appConfig);
+	this.castReceiverManager_.start(appConfig);
 }
 
 
@@ -84,8 +84,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			author : e.data.author,
 			title : e.data.title
 		}
-		this.mediaManager.setMediaInformation(mediaInformation, true, {});
-		this.mediaManager.sendLoadComplete();
+		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
+		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
 	// Stop any currently playing video first 
@@ -128,4 +128,5 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnGetStatusEvent_()");
 	console.debug(event.data);
+	this.mediaOrigOnGetStatus_(event)
 }
