@@ -1,0 +1,49 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Chromecast - embedded Youtube sender</title>
+        <meta name="description" content="Chromecast embedded Youtube sender">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Styles -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/application.css">
+
+        <!-- JS -->
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+
+
+        <script type="text/javascript" src="js/Sender.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <br><br>
+                    <h1>Chromecast</h1>
+                    <h4>Embedded Youtube sender</h4>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <label class="sr-only" for="videoID">VideoID</label>
+                            <input type="text" class="form-control" id="videoID" placeholder="Enter Youtube videoID" value="i_mKY2CQ9Kk">
+                        </div>
+                        <button type="button" class="btn btn-default" data-command="load">Load</button>
+                        <button type="button" class="btn btn-default" data-command="pause">Pause</button>
+                        <span class="current-time">--:--</span>
+                        <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="0" data-command="seek">
+                        <span class="total-time">--:--</span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -99,7 +99,8 @@ YoutubeWrapper.prototype.getVolume = function() {
 }
 
 YoutubeWrapper.prototype.getMetaData = function() {
-	
+	console.debug("YoutubeWrapper.js: getMetaData()");
+	return this.ytPlayer.getVideoData();;
 }
 
 YoutubeWrapper.prototype.getStateText_ = function() {
@@ -139,9 +140,6 @@ YoutubeWrapper.prototype.playerQualityChangeEvent_ = function() {
 }
 
 YoutubeWrapper.prototype.playerStateChangeEvent_ = function() {
-	// TODO: Remove this when no longer testing
-	this.ytPlayer.setVolume(0);
-
 	console.debug("YoutubeWrapper.js: playerStateChangeEvent_()");
 	console.debug("State: " + this.getStateText_());
 

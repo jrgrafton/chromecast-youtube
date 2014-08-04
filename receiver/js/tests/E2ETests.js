@@ -49,6 +49,7 @@ E2ETests.prototype.setup_ = function(callback) {
 	window.youtubeWrapper.stopVideo();
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
+		window.youtubeWrapper.setVolume(0); // Mute those cats!!
 		callback();
 	}.bind(this);
 
@@ -80,7 +81,7 @@ E2ETests.prototype.testResumeVideo_ = function(callback) {
 }
 
 E2ETests.prototype.testChangeVolume_ = function(callback) {
-	var targetVolume = 10;
+	var targetVolume = 90;
 	window.youtubeWrapper.setVolume(targetVolume);
 
 	// No event for volume change so just wait for a few seconds
@@ -90,7 +91,7 @@ E2ETests.prototype.testChangeVolume_ = function(callback) {
 			throw "Expected: volume to be " + targetVolume;
 		}
 		callback();
-	}, 2000);
+	}, 5000);
 }
 
 E2ETests.prototype.testPausingVideo_ = function(callback) {

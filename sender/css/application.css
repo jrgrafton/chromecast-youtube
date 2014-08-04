@@ -1,0 +1,10 @@
+html, body {
+    height: 100%;
+}
+
+input[type=range] {
+	width: auto;
+	display: inline;
+	top: 4px;
+	position: relative;
+}

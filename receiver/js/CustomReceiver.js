@@ -16,11 +16,13 @@ function CustomReceiver() {
 
 	// Startup functions
 	this.initialiseMediaManagement_()
+	this.hijackMediaEvents_();
 	this.initialiseSessionManagement_()
 	this.startReceiver_();
 }
 
 CustomReceiver.prototype.initialiseMediaManagement_ = function() {
+	console.debug("CustomReceiver.js: initialiseMediaManagement_()");
 	this.mediaElement = document.getElementById('media');
 	this.mediaManager = new cast.receiver.MediaManager(window.mediaElement);
 
@@ -28,17 +30,28 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 }
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
-	this.mediaOrigOnLoad = null;
-	this.mediaOrigOnPause = null;
-	this.mediaOrigOnPlay = null;
-	this.mediaOrigOnStop = null;
+	console.debug("CustomReceiver.js: hijackMediaEvents_()");
+	// Save original references
+	this.mediaOrigOnLoad = this.mediaManager.onLoad;
+	this.mediaOrigOnPause = this.mediaManager.onPause;
+	this.mediaOrigOnPlay = this.mediaManager.onPlay;
+	this.mediaOrigOnStop = this.mediaManager.onStop;
+	this.mediaOrigOnSeek = this.mediaManager.onSeek;
+	this.mediaOnSetVolume = this.mediaManager.onSetVolume;
+	this.mediaOrigOnGetStatus = this.mediaManager.onGetStatus;
 
-	this.mediaOrigOnSeek = null;
-	this.mediaOnSetVolume = null;
-	this.mediaOrigOnGetStatus = null;
+	// Hijack functions
+	this.mediaManager.onLoad = this.mediaOnLoadEvent_;
+	this.mediaManager.onPause = this.mediaOnPauseEvent_;
+	this.mediaManager.onPlay = this.mediaOnPlayEvent_;
+	this.mediaManager.onStop = this.mediaOnStopEvent_;
+	this.mediaManager.onSeek = this.mediaOnSeekEvent_;
+	this.mediaManager.onSetVolume = this.mediaOnSetVolumeEvent_;
+	this.mediaManager.onGetStatus = this.mediaOnGetStatusEvent_;
 }
 
-CustomReceiver.prototype.initialiseSessionManagement_ = function() {]
+CustomReceiver.prototype.initialiseSessionManagement_ = function() {
+	console.debug("CustomReceiver.js: initialiseSessionManagement_()");
 	this.castReceiverManager.onSenderDisconnected = function(event) {
 	  	if(this.castReceiverManager.getSenders().length == 0 &&
 	    	event.reason == 
@@ -49,6 +62,7 @@ CustomReceiver.prototype.initialiseSessionManagement_ = function() {]
 }
 
 CustomReceiver.prototype.startReceiver_ = function() {
+	console.debug("CustomReceiver.js: startReceiver_()");
 	this.castReceiverManager.start();
 }
 
@@ -89,20 +103,22 @@ CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
+	this.mediaOrigOnPlay(event);
 	window.youtubeWrapper.stopVideo();
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
 	console.debug(event.data);
-
-	window.youtubeWrapper.stopVideo();
-	
+	var seekSeconds = event.data.currentTime;
+	window.youtubeWrapper.seekVideo(seekSeconds);
 }
 
 CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSetVolumeEvent_()");
 	console.debug(event.data);
+	var volume = event.data.volume;
+	window.youtubeWrapper.setVolume(volume)
 }
 
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
