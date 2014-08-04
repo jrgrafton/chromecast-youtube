@@ -43,7 +43,7 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	// Hijack functions
 
 	this.mediaManager_.onLoad = (function() {
-    	var origOnLoad = this.mediaManager.onPlay;
+    	var origOnLoad = this.mediaManager_.onPlay;
 	    return function(event) {
 	        this.mediaOnLoadEvent_(event);
 	        origOnLoad(event);
