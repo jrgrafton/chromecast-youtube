@@ -85,8 +85,7 @@ Sender.prototype = {
         this.session_.loadMedia(request, function(media) {
             console.log("loadMedia: success");
             $(".current-time").html("00:00");
-
-
+            console.log(media);
         }.bind(this), function() {
             console.log("loadMedia: failure")
         });

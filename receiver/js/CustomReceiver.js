@@ -85,12 +85,11 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			title : e.data.title
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		this.mediaOrigOnLoad_(event);
-		//this.mediaManager_.sendLoadComplete();
+		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
 	// Stop any currently playing video first 
-	window.youtubeWrapper.stopVideo();
+	//window.youtubeWrapper.stopVideo();
 	document.addEventListener("video-playing", playListener);
 	window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 		event.data.currentTime, function() {});
