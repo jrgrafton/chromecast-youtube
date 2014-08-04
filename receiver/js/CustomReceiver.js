@@ -32,13 +32,13 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
 	// Save original references
-	this.mediaOrigOnLoad_ = this.mediaManager_.onLoad;
-	this.mediaOrigOnPause_ = this.mediaManager_.onPause;
-	this.mediaOrigOnPlay_ = this.mediaManager_.onPlay;
-	this.mediaOrigOnStop_ = this.mediaManager_.onStop;
-	this.mediaOrigOnSeek_ = this.mediaManager_.onSeek;
-	this.mediaOnSetVolume_ = this.mediaManager_.onSetVolume;
-	this.mediaOrigOnGetStatus_ = this.mediaManager_.onGetStatus;
+	this.mediaOrigOnLoad_ = this.mediaManager_.onLoad.bind(this);
+	this.mediaOrigOnPause_ = this.mediaManager_.onPause.bind(this);
+	this.mediaOrigOnPlay_ = this.mediaManager_.onPlay.bind(this);
+	this.mediaOrigOnStop_ = this.mediaManager_.onStop.bind(this);
+	this.mediaOrigOnSeek_ = this.mediaManager_.onSeek.bind(this);
+	this.mediaOrigOnSetVolume_ = this.mediaManager_.onSetVolume.bind(this);
+	this.mediaOrigOnGetStatus_ = this.mediaManager_.onGetStatus.bind(this);
 
 	// Hijack functions
 	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
@@ -85,11 +85,12 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			title : e.data.title
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
+		this.mediaOrigOnLoad_(event);
 		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
 	// Stop any currently playing video first 
-	//window.youtubeWrapper.stopVideo();
+	window.youtubeWrapper.stopVideo();
 	document.addEventListener("video-playing", playListener);
 	window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 		event.data.currentTime, function() {});
@@ -127,7 +128,7 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug(event.data);
 	var volume = event.data.volume;
 	window.youtubeWrapper.setVolume(volume)
-	window.mediaOnSetVolume_(event);
+	window.mediaOrigOnSetVolume_(event);
 }
 
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
