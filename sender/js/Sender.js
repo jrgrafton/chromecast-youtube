@@ -7,7 +7,6 @@
     window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
       if (loaded) {
         this.initializeCastApi_();
-        this.initializeUI_(); // Initialize UI
       } else {
         console.log(errorInfo);
       }
@@ -25,6 +24,8 @@ Sender.prototype = {
         function(e) {
             this.session_ = e;
             console.log('connected to session: ' + e.sessionId);
+            // Initialise UI only after session exists
+            this.initializeUI_();
         }.bind(this),
         function(e) {
             if (e === 'available') { console.log('receiver found'); }
@@ -52,7 +53,7 @@ Sender.prototype = {
                         console.log(e);
                     });
                 }
-            }.bind(this), 1000);
+            }.bind(this), 3000);
         }.bind(this),
         function(e){
             console.log("initialization failure");
@@ -62,7 +63,8 @@ Sender.prototype = {
     // Initialize UI
     initializeUI_ : function(){
         console.debug("Sender.js: initializeUI_()");
-        $("input").on("mouseup", function(e) {
+        $("input, button").on("mouseup", function(e) {
+            console.log("mouseup")
             var commandName = $(e.target).data("command");
             var functionName = "command" + commandName.charAt(0).toUpperCase() +
                 commandName.slice(1) + "_";
@@ -76,11 +78,15 @@ Sender.prototype = {
         var request = new chrome.cast.media.LoadRequest(mediaInfo);
         request.autoplay = true;
         request.currentTime = 0;
-        this.session_.loadMedia(request,
-            this.onMediaDiscovered_.bind(this, 'loadMedia'),
-            this.onMediaError_.bind(this));
+        this.session_.loadMedia(request, function() {
+            console.log("loadMedia: success")
+        }, function() {
+            console.log("loadMedia: failure")
+        });
     },
     commandPause_ : function(e) {
+        console.debug("Sender.js: commandPause_()");
+
         // Switch command for next press
         $(e).data("command", "play");
         $(e).html("Play");
@@ -90,6 +96,8 @@ Sender.prototype = {
         })
     },
     commandPlay_ : function(e) {
+        console.debug("Sender.js: commandPlay_()");
+
         // Switch command for next press
         $(e).data("command", "pause");
         $(e).html("Pause");

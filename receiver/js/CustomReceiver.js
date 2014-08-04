@@ -75,7 +75,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
-		document.removeEventListener("video-playing", videoPlayingListener);
+		document.removeEventListener("video-playing", playListener);
 
 		// Broadcast media information
 		var mediaInformation = new cast.receiver.media.MediaInformation();
