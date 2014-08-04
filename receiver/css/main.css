@@ -139,6 +139,9 @@ and (max-width: 1919px) {
 	width: 100%;
 	height: 100%;
 	z-index: 2;
+	position: absolute;
+	top: 0;
+	left: 0;
 	/* background-image: url("../img/test-background.png"); */
 }
 .screen-video .ui .state-icon-container {

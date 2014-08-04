@@ -14,8 +14,8 @@ window.onload = function() {
 		console.info = function() {}
 
 		window.e2eTests = new E2ETests();
-		window.e2eTests.runTests();
+		//window.e2eTests.runTests();
 	} else {
-		//window.customReceiver = new CustomReceiver();
+		window.customReceiver = new CustomReceiver();
 	}
 }

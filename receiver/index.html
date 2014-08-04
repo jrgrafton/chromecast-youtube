@@ -25,13 +25,19 @@
   				</h3>
           <div class="youtube-logo">
             <img src="img/youtube-logo.png">
-            <h4>Ready to Cast</h4>
+            <h5>Ready to Cast</h5>
           </div>
   			</div>
       </div>
   	</div>
   	<div class="screen screen-video">
+      <!-- Media element used for playback of non YT videos -->
+      <video id="media"></video>
+
+      <!-- Will be replaced by Youtube iFrame API -->
   		<div id="ytplayer" type="text/html"  frameborder="0" allowfullscreen></div>
+
+      <!-- Receiver UI -->
       <div class="ui">
         <div class="state-icon-container">
           <div class="state-icon">

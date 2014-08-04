@@ -1,5 +1,5 @@
 function E2ETests() {
-	this.testVideos_ = ["i_mKY2CQ9Kk", "C_S5cXbXe-4", "GsxBxvjXj2M",
+	this.testVideos_ = ["i_mKY2CQ9Kk", "mmf0KAHWlnk", "C_S5cXbXe-4", "rUL0M__g1k4",
 		"z3U0udLH974", "tntOCGkgt98"];
 	this.tests = [];
 	this.discoverTests_();
@@ -53,7 +53,8 @@ E2ETests.prototype.setup_ = function(callback) {
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
-	window.youtubeWrapper.loadVideo(this.testVideos_.shift(), function() {});
+	window.youtubeWrapper.loadVideo(this.testVideos_.shift(),
+		0, function() {});
 }
 
 E2ETests.prototype.testResumeVideo_ = function(callback) {
@@ -75,6 +76,20 @@ E2ETests.prototype.testResumeVideo_ = function(callback) {
 	setTimeout(function() {
 		// To give video extra time to load on Chromecast
 		window.youtubeWrapper.pauseVideo();
+	}, 2000);
+}
+
+E2ETests.prototype.testChangeVolume_ = function(callback) {
+	var targetVolume = 10;
+	window.youtubeWrapper.setVolume(targetVolume);
+
+	// No event for volume change so just wait for a few seconds
+	setTimeout(function() {
+		var volume = window.youtubeWrapper.getVolume();
+		if(volume !== targetVolume) {
+			throw "Expected: volume to be " + targetVolume;
+		}
+		callback();
 	}, 2000);
 }
 
