@@ -8,7 +8,7 @@ window.onload = function() {
 	window.ui.switchToState("idle");
 
 	// Load tests or receiver code depending on environment
-	if(!window.cast) {
+	if(navigator.userAgent.indexOf("armv7l") === -1) {
 		console.log = function() {}
 		console.debug = function() {}
 		console.info = function() {}

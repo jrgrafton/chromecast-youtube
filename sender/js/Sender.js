@@ -27,7 +27,6 @@ Sender.prototype = {
             console.log('connected to session: ' + e.sessionId);
         }.bind(this),
         function(e) {
-            console.log(e);
             if (e === 'available') { console.log('receiver found'); }
             else { console.log('receiver list empty'); }
         });
