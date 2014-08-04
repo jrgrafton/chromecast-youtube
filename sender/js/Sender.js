@@ -78,9 +78,10 @@ Sender.prototype = {
         var request = new chrome.cast.media.LoadRequest(mediaInfo);
         request.autoplay = true;
         request.currentTime = 0;
-        this.session_.loadMedia(request, function() {
-            console.log("loadMedia: success")
-        }, function() {
+        this.session_.loadMedia(request, function(media) {
+            console.log("loadMedia: success");
+            this._session.media[0] = media;
+        }.bind(this), function() {
             console.log("loadMedia: failure")
         });
     },

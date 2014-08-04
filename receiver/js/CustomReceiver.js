@@ -32,13 +32,13 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
 	// Save original references
-	this.mediaOrigOnLoad = this.mediaManager_.onLoad;
-	this.mediaOrigOnPause = this.mediaManager_.onPause;
-	this.mediaOrigOnPlay = this.mediaManager_.onPlay;
-	this.mediaOrigOnStop = this.mediaManager_.onStop;
-	this.mediaOrigOnSeek = this.mediaManager_.onSeek;
-	this.mediaOnSetVolume = this.mediaManager_.onSetVolume;
-	this.mediaOrigOnGetStatus = this.mediaManager_.onGetStatus;
+	this.mediaOrigOnLoad_ = this.mediaManager_.onLoad;
+	this.mediaOrigOnPause_ = this.mediaManager_.onPause;
+	this.mediaOrigOnPlay_ = this.mediaManager_.onPlay;
+	this.mediaOrigOnStop_ = this.mediaManager_.onStop;
+	this.mediaOrigOnSeek_ = this.mediaManager_.onSeek;
+	this.mediaOnSetVolume_ = this.mediaManager_.onSetVolume;
+	this.mediaOrigOnGetStatus_ = this.mediaManager_.onGetStatus;
 
 	// Hijack functions
 	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
@@ -86,6 +86,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
+		this.mediaOrigOnLoad_(event);
 	}.bind(this);
 
 	// Stop any currently playing video first 
@@ -128,5 +129,5 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnGetStatusEvent_()");
 	console.debug(event.data);
-	this.mediaOrigOnGetStatus_(event)
+	this.mediaOrigOnGetStatus_(event);
 }
