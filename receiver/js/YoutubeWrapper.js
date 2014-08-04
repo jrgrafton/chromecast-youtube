@@ -58,7 +58,9 @@ YoutubeWrapper.prototype.pauseVideo = function() {
 
 YoutubeWrapper.prototype.playVideo = function() {
 	console.debug("YoutubeWrapper.js: playVideo()");
-	this.ytPlayer.playVideo();
+	if(this.ytPlayer) {
+		this.ytPlayerplayVideo();
+	}
 }
 
 YoutubeWrapper.prototype.stopVideo = function() {
