@@ -24,7 +24,7 @@ function CustomReceiver() {
 CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	console.debug("CustomReceiver.js: initialiseMediaManagement_()");
 	this.mediaElement = document.getElementById('media');
-	this.mediaManager = new cast.receiver.MediaManager(window.mediaElement);
+	this.mediaManager = new cast.receiver.MediaManager(this.mediaElement);
 
 	this.hijackMediaEvents_();
 }
@@ -63,7 +63,11 @@ CustomReceiver.prototype.initialiseSessionManagement_ = function() {
 
 CustomReceiver.prototype.startReceiver_ = function() {
 	console.debug("CustomReceiver.js: startReceiver_()");
-	this.castReceiverManager.start();
+
+	var appConfig = new cast.receiver.CastReceiverManager.Config();
+	appConfig.statusText = 'Ready to play';
+	appConfig.maxInactivity = 6000;
+	this.castReceiverManager.start(appConfig);
 }
 
 
