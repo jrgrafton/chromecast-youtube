@@ -85,8 +85,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			title : e.data.title
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		//this.mediaOrigOnLoad_(event);
-		this.mediaManager_.sendLoadComplete();
+		this.mediaOrigOnLoad_(event);
+		//this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
 	// Stop any currently playing video first 
