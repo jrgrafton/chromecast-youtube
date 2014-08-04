@@ -99,17 +99,20 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 	window.youtubeWrapper.pauseVideo();
+	this.mediaOrigOnPause_(event);
 }
 
 CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
 	window.youtubeWrapper.playVideo();
+	this.mediaOrigOnPlay_(event);
 }
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
 	this.mediaOrigOnPlay(event);
 	window.youtubeWrapper.stopVideo();
+	this.mediaOrigOnStop_(event);
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
@@ -117,6 +120,7 @@ CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug(event.data);
 	var seekSeconds = event.data.currentTime;
 	window.youtubeWrapper.seekVideo(seekSeconds);
+	this.mediaOrigOnSeek_(event);
 }
 
 CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
@@ -124,6 +128,7 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug(event.data);
 	var volume = event.data.volume;
 	window.youtubeWrapper.setVolume(volume)
+	window.mediaOnSetVolume_(event);
 }
 
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {

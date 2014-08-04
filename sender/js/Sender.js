@@ -64,7 +64,6 @@ Sender.prototype = {
     initializeUI_ : function(){
         console.debug("Sender.js: initializeUI_()");
         $("input, button").on("mouseup", function(e) {
-            console.log("mouseup")
             var commandName = $(e.target).data("command");
             var functionName = "command" + commandName.charAt(0).toUpperCase() +
                 commandName.slice(1) + "_";
@@ -80,7 +79,7 @@ Sender.prototype = {
         request.currentTime = 0;
         this.session_.loadMedia(request, function(media) {
             console.log("loadMedia: success");
-            this._session.media[0] = media;
+            $(".current-time").html("00:00");
         }.bind(this), function() {
             console.log("loadMedia: failure")
         });
@@ -108,6 +107,8 @@ Sender.prototype = {
         })
     },
     commandSeek_ : function(e) {
+        console.debug("Sender.js: commandSeek_()");
+
         // Switch command for next press
         
     },
