@@ -41,13 +41,13 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	this.mediaOrigOnGetStatus = this.mediaManager_.onGetStatus;
 
 	// Hijack functions
-	this.mediaManager_.onLoad = this.mediaOnLoadEvent_;
-	this.mediaManager_.onPause = this.mediaOnPauseEvent_;
-	this.mediaManager_.onPlay = this.mediaOnPlayEvent_;
-	this.mediaManager_.onStop = this.mediaOnStopEvent_;
-	this.mediaManager_.onSeek = this.mediaOnSeekEvent_;
-	this.mediaManager_.onSetVolume = this.mediaOnSetVolumeEvent_;
-	this.mediaManager_.onGetStatus = this.mediaOnGetStatusEvent_;
+	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
+	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
+	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
+	this.mediaManager_.onSeek = this.mediaOnSeekEvent_.bind(this);
+	this.mediaManager_.onSetVolume = this.mediaOnSetVolumeEvent_.bind(this);
+	this.mediaManager_.onGetStatus = this.mediaOnGetStatusEvent_.bind(this);
 }
 
 CustomReceiver.prototype.initialiseSessionManagement_ = function() {
