@@ -65,7 +65,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 	console.debug("CustomReceiver.js: startReceiver_()");
 
 	var appConfig = new cast.receiver.CastReceiverManager.Config();
-	appConfig.statusText = 'Ready to play';
+	appConfig.statusText = 'Casting Kittens';
 	appConfig.maxInactivity = 6000;
 	this.castReceiverManager_.start(appConfig);
 }
@@ -85,8 +85,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			title : e.data.title
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		this.mediaManager_.sendLoadComplete();
 		this.mediaOrigOnLoad_(event);
+		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
 	// Stop any currently playing video first 

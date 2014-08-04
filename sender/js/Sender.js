@@ -72,6 +72,11 @@ Sender.prototype = {
     },
     commandLoad_ : function(e) {
         console.debug("Sender.js: commandLoad_()");
+
+        // Set loading text
+        $(".author").html("Loading...");
+
+        // Load actual videp
         var videoID = $("#videoID").val(); 
         var mediaInfo = new chrome.cast.media.MediaInfo(videoID, "yt");
         var request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -80,6 +85,8 @@ Sender.prototype = {
         this.session_.loadMedia(request, function(media) {
             console.log("loadMedia: success");
             $(".current-time").html("00:00");
+
+
         }.bind(this), function() {
             console.log("loadMedia: failure")
         });
