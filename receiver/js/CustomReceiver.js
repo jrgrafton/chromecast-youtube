@@ -43,20 +43,12 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
 	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus; */
 
+//cast.receiver.media.MediaInformation
 
-
-
-	this.mediaManager_.onLoad = (function() {
-	    var originalFunction = this.mediaManager_.onLoad;
-	    return function(event) {
-	    	this.mediaOnLoadEvent_(event, originalFunction);
-	    }.bind(this);
-	}.bind(this)());
 
 	this.mediaManager_.customizedStatusCallback = 
 		this.mediaCustomizedStatusCallbackEvent_.bind(this);
-	this.mediaManager_.getPlayerState_ = this.mediaGetPlayerState_.bind(this);
-	//this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
@@ -86,7 +78,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 
 
 /* Start event processing */
-CustomReceiver.prototype.mediaOnLoadEvent_ = function(event, originalFunction) {
+CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
@@ -99,10 +91,10 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event, originalFunction) {
 			author : e.data.author,
 			title : e.data.title
 		}
+
+		console.debug("CustomReceiver.js: sending load complete");
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		this.mediaManager_.broadcastStatus(true, event.data.requestId);
 		this.mediaManager_.sendLoadComplete();
-		originalFunction(event);
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -151,9 +143,4 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 
 	currentStatus.playerState = cast.receiver.media.PlayerState.PLAYING;
 	return currentStatus;
-}
-
-CustomReceiver.prototype.mediaGetPlayerState_ = function() {
-	console.debug("CustomReceiver.js: mediaGetPlayerState_()");
-	return cast.receiver.media.PlayerState.PLAYING;
 }
