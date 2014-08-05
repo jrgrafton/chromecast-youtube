@@ -149,5 +149,25 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 CustomReceiver.prototype.getMediaState_ = function(currentStatus) {
 	console.debug("CustomReceiver.js: getMediaState_()");
 
-	return cast.receiver.media.PlayerState.PLAYING;
+	var youtubeState = window.youtubeWrapper.getState();
+	switch(youtubeState) {
+		case "ended":
+			return cast.receiver.media.PlayerState.IDLE;
+		break;
+		case "playing":
+			return cast.receiver.media.PlayerState.PLAYING;
+		break;
+		case "paused":
+			return cast.receiver.media.PlayerState.PAUSED;
+		break;
+		case "buffering":
+			return cast.receiver.media.PlayerState.BUFFERING;
+		break;
+		case "cued":
+			return cast.receiver.media.PlayerState.IDLE
+		break;
+		case "unstarted":
+			return cast.receiver.media.PlayerState.IDLE;
+		break;
+	}
 }

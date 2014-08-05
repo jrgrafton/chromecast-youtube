@@ -69,6 +69,8 @@ Sender.prototype = {
                 commandName.slice(1) + "_";
             this[functionName](e.target);
         }.bind(this))
+
+        console.log(this.session_)
     },
     commandLoad_ : function(e) {
         console.debug("Sender.js: commandLoad_()");
