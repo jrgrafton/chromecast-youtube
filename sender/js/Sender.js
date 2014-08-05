@@ -61,14 +61,14 @@ Sender.prototype.initializeCastApi_ = function() {
 }
 
 Sender.prototype.attachMediaUpdateListener = function() {
-    if(this.session_.media.length > 0) {
+    /* if(this.session_.media.length > 0) {
         console.log("Attaching media update listener");
         this.session_.media[0].addUpdateListener(function(e) {
             console.log("Media updated");
             console.log(e);
         });
         this.updateUI_(this.session_.media[0]);
-    }
+    } */
 }
 
 

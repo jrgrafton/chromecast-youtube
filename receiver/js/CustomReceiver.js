@@ -94,11 +94,9 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			author : e.data.author,
 			title : e.data.title
 		}
-
 		console.debug("CustomReceiver.js: sending load complete");
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_['mediaOrigOnLoad'](event);
-		this.mediaManager_.broadcastStatus(true);
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -109,22 +107,19 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 	window.youtubeWrapper.pauseVideo();
-	//this.mediaManager_['mediaOrigOnPause'](event);
-	this.mediaManager_.broadcastStatus(true);
+	this.mediaManager_['mediaOrigOnPause'](event);
 }
 
 CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
 	window.youtubeWrapper.playVideo();
 	this.mediaManager_['mediaOrigOnPlay'](event);
-	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
 	window.youtubeWrapper.stopVideo();
 	this.mediaManager_['mediaOrigOnStop'](event);
-	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
@@ -133,7 +128,6 @@ CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	var seekSeconds = event.data.currentTime;
 	window.youtubeWrapper.seekVideo(seekSeconds);
 	this.mediaManager_['mediaOrigOnSeek'](event);
-	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
@@ -142,7 +136,6 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	var volume = event.data.volume;
 	window.youtubeWrapper.setVolume(volume);
 	this.mediaManager_['mediaOrigOnSetVolume'](event);
-	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
