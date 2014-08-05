@@ -72,7 +72,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 
 
 /* Start event processing */
-CustomReceiver.prototype.mediaOnLoadEvent_ = function(super, event) {
+CustomReceiver.prototype.mediaOnLoadEvent_ = function(originalFunction, event) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
@@ -86,7 +86,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(super, event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
-		super(event);
+		originalFunction(event);
 		//this.mediaManager_.mediaOrigOnLoad();
 	}.bind(this);
 
