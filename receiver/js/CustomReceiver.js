@@ -47,7 +47,7 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 
 
 	this.mediaManager_.onLoad = (function() {
-	    var originalFunction = mediaManager.onLoad;
+	    var originalFunction = this.mediaManager_.onLoad;
 	    return function(event) {
 	    	this.mediaOnLoadEvent_(event, originalFunction);
 	    }.bind(this);
