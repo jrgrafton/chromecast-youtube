@@ -2,6 +2,7 @@
     // See https://cast.google.com/publish/#/overview
     this.applicationID_ = "917A9D6E";
     this.session_ = null;
+    this.PROGRESS_INTERVAL = 1000;
 
     // Wait for Chromecast to be detected
     window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
@@ -67,6 +68,9 @@ Sender.prototype.initializeCastApi_ = function() {
 Sender.prototype.onMediaUpdateListener_ = function(media) {
     console.debug("Sender.js: onMediaUpdateListener_()");
     this.updateUI_(media);
+    media.addUpdateListener(function() {
+        this.updateUI_(media);
+    }.bind(this));
 }
 
 Sender.prototype.secondsToTime_ = function(seconds) {
@@ -89,8 +93,18 @@ Sender.prototype.initializeUI_ = function() {
         this[functionName](e.target);
     }.bind(this))
 
+    setInterval(this.commandStatusRequest_.bind(this), this.PROGRESS_INTERVAL);
+
     if(this.session_.media.length > 0) {
+        if(this.session_.media[0].playerState ===
+                chrome.cast.media.PlayerState.PAUSED) {
+            $("button[data-command='pause']").html("Play");
+            $("button[data-command='pause']").data("command", "play");
+        }
         this.updateUI_(this.session_.media[0]);
+        this.session_.media[0].addUpdateListener(function() {
+            this.updateUI_(this.session_.media[0]);
+        }.bind(this));
     }
 }
 
@@ -113,13 +127,8 @@ Sender.prototype.updateUI_ = function(media) {
     $(".total-time").html(totalTime);
     $("#progress-bar").val(percentComplete);
 
-    // Toggle play / pause
-    if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
-        $("button[data-command='pause']").html("Play");
-        $("button[data-command='pause']").data("command", "play");
-    }
-
     // Update author and title
+    $(".meta").css("visibility", "visible");
     $(".author").html(media.media.metadata.author + ": ");
     $(".title").html(media.media.metadata.title);
 }
@@ -131,12 +140,9 @@ Sender.prototype.commandStatusRequest_ = function() {
     this.session_.media[0].getStatus(new chrome.cast.media.GetStatusRequest(),
         function(e) {
             console.log("Status request completed successfully");
-            // Switch command for next press
-            $(e).data("command", "play");
-            $(e).html("Play");
         },
         function(e) {
-            console.log("Pause request failed");
+            console.log("Status request failed");
         }
     );
 } 
@@ -145,7 +151,7 @@ Sender.prototype.commandLoad_ = function(e) {
     console.debug("Sender.js: commandLoad_()");
 
     // Set loading text
-    $(".author").html("Loading...");
+    $(".meta").css("visibility", "visible");
 
     // Load actual videp
     var videoID = $("#videoID").val(); 
@@ -163,15 +169,19 @@ Sender.prototype.commandPause_ = function(e) {
     console.debug("Sender.js: commandPause_()");
     if(!this.session_.media[0]) return;
 
+    // Switch command for next press
+    $(e).data("command", "play");
+    $(e).html("Play");
+    $(e).prop("disabled", true);
+
     this.session_.media[0].pause(new chrome.cast.media.PauseRequest(),
         function() {
             console.log("Pause request completed successfully");
-            // Switch command for next press
-            $(e).data("command", "play");
-            $(e).html("Play");
+            $(e).prop("disabled", false);
         },
         function(e) {
             console.log("Pause request failed");
+            $(e).prop("disabled", false);
         }
     );
 }
@@ -180,15 +190,19 @@ Sender.prototype.commandPlay_ = function(e) {
     console.debug("Sender.js: commandPlay_()");
     if(!this.session_.media[0]) return;
 
+     // Switch command for next press
+    $(e).data("command", "pause");
+    $(e).html("Pause");
+    $(e).prop("disabled", true);
+
     this.session_.media[0].play(new chrome.cast.media.PlayRequest(),
         function() {
             console.log("Play request completed successfully");
-             // Switch command for next press
-            $(e).data("command", "pause");
-            $(e).html("Pause");
+            $(e).prop("disabled", false);
         },
         function(e) {
             console.log("Play request failed");
+            $(e).prop("disabled", false);
         }
     )
 }
