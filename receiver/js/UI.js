@@ -132,7 +132,7 @@ UI.prototype.eventVideoPause_ = function() {
 	this.switchToState("video-paused");
 	this.pauseIdleTimeoutFunction = setTimeout(function() {
 		// Reset playing video and go into idle state
-		window.youtubeWrapper.resetVideo();
+		window.youtubeWrapper.stopVideo();
 		this.switchToState("idle");
 	}.bind(this), this.PAUSE_IDLE_TIMEOUT);
 }

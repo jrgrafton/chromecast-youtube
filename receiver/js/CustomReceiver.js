@@ -27,24 +27,19 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	console.debug("CustomReceiver.js: initialiseMediaManagement_()");
 	this.mediaElement_ = document.getElementById('media');
 	this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
-
-	this.hijackMediaEvents_();
 }
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
 
 	// Save original references
-	/* this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
+	this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
 	this.mediaManager_['mediaOrigOnPause'] = this.mediaManager_.onPause;
 	this.mediaManager_['mediaOrigOnPlay'] = this.mediaManager_.onPlay;
 	this.mediaManager_['mediaOrigOnStop'] = this.mediaManager_.onStop;
 	this.mediaManager_['mediaOrigOnSeek'] = this.mediaManager_.onSeek;
 	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
-	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus; */
-
-//cast.receiver.media.MediaInformation
-
+	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus;
 
 	this.mediaManager_.customizedStatusCallback = 
 		this.mediaCustomizedStatusCallbackEvent_.bind(this);
@@ -93,6 +88,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 
 		console.debug("CustomReceiver.js: sending load complete");
+		this.mediaManager_['mediaOrigOnLoad'](event);
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
