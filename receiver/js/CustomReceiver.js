@@ -72,13 +72,14 @@ CustomReceiver.prototype.startReceiver_ = function() {
 
 
 /* Start event processing */
-CustomReceiver.prototype.mediaOnLoadEvent_ = function(originalFunction, event) {
+CustomReceiver.prototype.mediaOnLoadEvent_ = function(super, event) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
 
 		// Broadcast media information
 		var mediaInformation = new cast.receiver.media.MediaInformation();
+		mediaInformation.playerState = cast.receiver.media.PlayerState.PLAYING;
 		mediaInformation.duration = window.youtubeWrapper.getVideoLength();
 		mediaInformation.metadata = {
 			author : e.data.author,
@@ -86,8 +87,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(originalFunction, event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
-		originalFunction(event);
-		//this.mediaManager_.mediaOrigOnLoad();
+		super(event)
+		this.mediaManager_.mediaOrigOnLoad();
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -134,5 +135,5 @@ CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnGetStatusEvent_()");
 	console.debug(event.data);
 
-	return chrome.cast.media.PlayerState.PLAYING;
+	this.mediaManager_['mediaOrigOnGetStatus'](event);
 }
