@@ -29,9 +29,12 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	
 	// Custom player to allow YT state to be propogated
 	var player = new cast.receiver.media.Player();
-	player.getState = function() { 
-		return this.getMediaState_();
+	player.getPlayerState = function() { 
+		return this.getPlayerState_();
 	}.bind(this);
+	player.getPlayerCurrentTimeSec = function() {
+		return this.getPlayerCurrentTimeSec();
+	}
 	this.mediaManager_ = new cast.receiver.MediaManager(player);
 }
 
@@ -93,8 +96,9 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 
 		console.debug("CustomReceiver.js: sending load complete");
-		this.mediaManager_['mediaOrigOnLoad'](event);
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
+		this.mediaManager_['mediaOrigOnLoad'](event);
+		this.mediaManager_.broadcastStatus(true);
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -105,17 +109,22 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 	window.youtubeWrapper.pauseVideo();
+	this.mediaManager_['mediaOrigOnPause'](event);
+	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
 	window.youtubeWrapper.playVideo();
+	this.mediaManager_['mediaOrigOnPlay'](event);
+	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
-	this.mediaOrigOnPlay(event);
 	window.youtubeWrapper.stopVideo();
+	this.mediaManager_['mediaOrigOnStop'](event);
+	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
@@ -123,13 +132,17 @@ CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug(event.data);
 	var seekSeconds = event.data.currentTime;
 	window.youtubeWrapper.seekVideo(seekSeconds);
+	this.mediaManager_['mediaOrigOnSeek'](event);
+	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSetVolumeEvent_()");
 	console.debug(event.data);
 	var volume = event.data.volume;
-	window.youtubeWrapper.setVolume(volume)
+	window.youtubeWrapper.setVolume(volume);
+	this.mediaManager_['mediaOrigOnSetVolume'](event);
+	this.mediaManager_.broadcastStatus(true);
 }
 
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
@@ -146,7 +159,9 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 	return currentStatus;
 }
 
-CustomReceiver.prototype.getMediaState_ = function(currentStatus) {
+
+// START: Player functions
+CustomReceiver.prototype.getPlayerState_ = function() {
 	console.debug("CustomReceiver.js: getMediaState_()");
 
 	var youtubeState = window.youtubeWrapper.getState();
@@ -170,4 +185,9 @@ CustomReceiver.prototype.getMediaState_ = function(currentStatus) {
 			return cast.receiver.media.PlayerState.IDLE;
 		break;
 	}
+}
+
+CustomReceiver.prototype.getPlayerCurrentTimeSec_ = function() {
+	console.debug("CustomReceiver.js: getPlayerCurrentTimeSec_()");
+	return window.youtubeWrapper.getVideoProgress();
 }

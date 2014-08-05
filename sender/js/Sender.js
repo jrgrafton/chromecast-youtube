@@ -24,6 +24,7 @@ Sender.prototype.initializeCastApi_ = function() {
 
         // Initialise UI only after session exists
         this.initializeUI_();
+        this.attachMediaUpdateListener();
     }.bind(this),
     function(e) {
         if (e === 'available') { console.log('receiver found'); }
@@ -59,6 +60,18 @@ Sender.prototype.initializeCastApi_ = function() {
     });
 }
 
+Sender.prototype.attachMediaUpdateListener = function() {
+    if(this.session_.media.length > 0) {
+        console.log("Attaching media update listener");
+        this.session_.media[0].addUpdateListener(function(e) {
+            console.log("Media updated");
+            console.log(e);
+        });
+        this.updateUI_(this.session_.media[0]);
+    }
+}
+
+
 Sender.prototype.secondsToTime_ = function(seconds) {
     var minutes = parseInt(Math.floor(seconds / 60));
     var seconds = parseInt(seconds % 60);
@@ -77,11 +90,7 @@ Sender.prototype.initializeUI_ = function() {
             commandName.slice(1) + "_";
         this[functionName](e.target);
     }.bind(this))
-    if(this.session_.media.length > 0) {
-        this.updateUI_(this.session_.media[0]);
-    }
 }
-
 
 Sender.prototype.updateUI_ = function(media) {
     console.debug("Sender.js: updateUI_(" + media + ")");
@@ -101,11 +110,28 @@ Sender.prototype.updateUI_ = function(media) {
     $("#progress-bar").val(percentComplete);
 
     // Toggle play / pause
-    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
+    console.log(media);
+    if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
         $("button[data-command='pause']").html("Play");
         $("button[data-command='pause']").data("command", "play");
     }
 }
+
+Sender.prototype.commandStatusRequest_ = function() {
+    console.debug("Sender.js: commandStatusRequest_()");
+
+    this.session_.media[0].getStatus(new chrome.cast.media.GetStatusRequest(),
+        function(e) {
+            console.log("Status request completed successfully");
+            // Switch command for next press
+            $(e).data("command", "play");
+            $(e).html("Play");
+        },
+        function(e) {
+            console.log("Pause request failed");
+        }
+    );
+} 
 
 Sender.prototype.commandLoad_ = function(e) {
     console.debug("Sender.js: commandLoad_()");
@@ -121,8 +147,8 @@ Sender.prototype.commandLoad_ = function(e) {
     request.currentTime = 0;
     this.session_.loadMedia(request, function(media) {
         console.log("loadMedia: success");
-        
         this.updateUI_(media);
+        this.attachMediaUpdateListener();
     }.bind(this), function() {
         console.error("commandLoad_(): failure")
     });
@@ -131,7 +157,7 @@ Sender.prototype.commandLoad_ = function(e) {
 Sender.prototype.commandPause_ = function(e) {
     console.debug("Sender.js: commandPause_()");
 
-    this.session_.media[0].pause(new chrome.cast.media.PlayRequest(),
+    this.session_.media[0].pause(new chrome.cast.media.PauseRequest(),
         function() {
             console.log("Pause request completed successfully");
             // Switch command for next press
