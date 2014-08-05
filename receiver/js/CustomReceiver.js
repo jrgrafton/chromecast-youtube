@@ -154,7 +154,7 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 	volume.level = window.youtubeWrapper.getVolume() / 100;
 	volume.muted = (volume.level === 0);
 
-	currentStatus.playerState = this.getMediaState_();
+	currentStatus.playerState = this.getPlayerState_();
 	currentStatus.volume = volume;
 	return currentStatus;
 }
