@@ -31,27 +31,17 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
+	
 	// Save original references
-	//this.mediaOrigOnLoad_ = this.mediaManager_.onLoad;
-	this.mediaOrigOnPause_ = this.mediaManager_.onPause;
-	this.mediaOrigOnPlay_ = this.mediaManager_.onPlay;
-	this.mediaOrigOnStop_ = this.mediaManager_.onStop;
-	this.mediaOrigOnSeek_ = this.mediaManager_.onSeek;
-	this.mediaOrigOnSetVolume_ = this.mediaManager_.onSetVolume;
-	this.mediaOrigOnGetStatus_ = this.mediaManager_.onGetStatus;
+	this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
+	this.mediaManager_['mediaOrigOnPause'] = this.mediaManager_.onPause;
+	this.mediaManager_['mediaOrigOnPlay'] = this.mediaManager_.onPlay;
+	this.mediaManager_['mediaOrigOnStop'] = this.mediaManager_.onStop;
+	this.mediaManager_['mediaOrigOnSeek'] = this.mediaManager_.onSeek;
+	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
+	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus;
 
-	// Hijack functions
-
-	this.mediaManager_.onLoad = (function() {
-    	var origOnLoad = this.mediaManager_.onLoad;
-	    return function(event) {
-	        this.mediaOnLoadEvent_(event);
-	        origOnLoad(event);
-	    }.bind(this);
-	}.bind(this)());
-
-
-	//this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
@@ -96,6 +86,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
+		this.mediaManager_.mediaOrigOnLoad();
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);

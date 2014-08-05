@@ -23,7 +23,7 @@ YoutubeWrapper.prototype.loadVideo = function(id, startTime, callback) {
 	console.debug("YoutubeWrapper.js: loadVideo(" + id + ")");
 	document.dispatchEvent(new Event("video-loading"));
 
-	if(this.ytPlayer === null) {
+	if(this.ytPlayer == null) {
 		// Set start time
 		this.playerDefaultParams.start = startTime;
 
