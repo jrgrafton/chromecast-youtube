@@ -41,13 +41,14 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
 	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus;
 
+	this.mediaManager_.customizedStatusCallback = 
+		this.mediaCustomizedStatusCallbackEvent_.bind(this);
 	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
 	this.mediaManager_.onSeek = this.mediaOnSeekEvent_.bind(this);
 	this.mediaManager_.onSetVolume = this.mediaOnSetVolumeEvent_.bind(this);
-	this.mediaManager_.onGetStatus = this.mediaOnGetStatusEvent_.bind(this);
 }
 
 CustomReceiver.prototype.initialiseSessionManagement_ = function() {
@@ -86,8 +87,9 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			title : e.data.title
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
+		this.mediaManager_.broadcastStatus(true, event.data.requestId);
 		this.mediaManager_.sendLoadComplete();
-		//this.mediaManager_['mediaOrigOnLoad'](event);
+
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -130,9 +132,10 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	window.mediaOrigOnSetVolume_(event);
 }
 
-CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
-	console.debug("CustomReceiver.js: mediaOnGetStatusEvent_()");
-	console.debug(event);
-
-	this.sendStatus(event.senderId, event.data.requestId, true);
+CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
+	function(currentStatus) {
+	console.debug("CustomReceiver.js: mediaCustomizedStatusCallbackEvent_()");
+		
+	currentStatus.playerState = cast.receiver.media.PlayerState.PLAYING;
+	return currentStatus;
 }
