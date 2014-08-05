@@ -109,7 +109,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 	window.youtubeWrapper.pauseVideo();
-	this.mediaManager_['mediaOrigOnPause'](event);
+	//this.mediaManager_['mediaOrigOnPause'](event);
 	this.mediaManager_.broadcastStatus(true);
 }
 
