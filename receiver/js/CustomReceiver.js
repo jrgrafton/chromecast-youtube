@@ -86,7 +86,6 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 
 		// Broadcast media information
 		var mediaInformation = new cast.receiver.media.MediaInformation();
-		mediaInformation.playerState = cast.receiver.media.PlayerState.PLAYING;
 		mediaInformation.duration = window.youtubeWrapper.getVideoLength();
 		mediaInformation.metadata = {
 			author : e.data.author,
@@ -106,20 +105,17 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 	window.youtubeWrapper.pauseVideo();
-	this.mediaOrigOnPause_(event);
 }
 
 CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
 	window.youtubeWrapper.playVideo();
-	this.mediaOrigOnPlay_(event);
 }
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
 	this.mediaOrigOnPlay(event);
 	window.youtubeWrapper.stopVideo();
-	this.mediaOrigOnStop_(event);
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
@@ -127,7 +123,6 @@ CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug(event.data);
 	var seekSeconds = event.data.currentTime;
 	window.youtubeWrapper.seekVideo(seekSeconds);
-	this.mediaOrigOnSeek_(event);
 }
 
 CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
@@ -135,14 +130,19 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug(event.data);
 	var volume = event.data.volume;
 	window.youtubeWrapper.setVolume(volume)
-	window.mediaOrigOnSetVolume_(event);
 }
 
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
 	function(currentStatus) {
 	console.debug("CustomReceiver.js: mediaCustomizedStatusCallbackEvent_()");
 
+	// Get YTPlayerVolume
+	var volume = new cast.receiver.media.Volume();
+	volume.level = window.youtubeWrapper.getVolume() / 100;
+	volume.muted = (volume.level === 0);
+
 	currentStatus.playerState = this.getMediaState_();
+	currentStatus.volume = volume;
 	return currentStatus;
 }
 

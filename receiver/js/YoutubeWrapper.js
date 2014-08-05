@@ -65,9 +65,9 @@ YoutubeWrapper.prototype.playVideo = function() {
 
 YoutubeWrapper.prototype.stopVideo = function() {
 	console.debug("YoutubeWrapper.js: stopVideo()");
-	document.dispatchEvent(new Event("video-stopped"));
-	if(this.ytPlayer !== null) this.ytPlayer.stopVideo();
 	clearInterval(this.updateProgressEvent);
+	document.dispatchEvent(new Event("video-stopped"));
+	if(this.ytPlayer !== null) this.ytPlayer.stopVideo();	
 }
 
 YoutubeWrapper.prototype.seekVideo = function(seconds) {
