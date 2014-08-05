@@ -31,7 +31,7 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
-	
+
 	// Save original references
 	this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
 	this.mediaManager_['mediaOrigOnPause'] = this.mediaManager_.onPause;
@@ -41,7 +41,7 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
 	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus;
 
-	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this, this.mediaManager_.onLoad);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
@@ -72,7 +72,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 
 
 /* Start event processing */
-CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
+CustomReceiver.prototype.mediaOnLoadEvent_ = function(super, event) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
@@ -86,7 +86,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
-		this.mediaManager_.mediaOrigOnLoad();
+		super(event);
+		//this.mediaManager_.mediaOrigOnLoad();
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -132,5 +133,6 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnGetStatusEvent_()");
 	console.debug(event.data);
-	this.mediaOrigOnGetStatus_(event);
+
+	return chrome.cast.media.PlayerState.PLAYING;
 }
