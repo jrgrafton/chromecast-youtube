@@ -16,7 +16,6 @@ function CustomReceiver() {
 
 	// Startup functions
 	cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
-    cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
 
 	this.initialiseMediaManagement_()
 	this.hijackMediaEvents_();
