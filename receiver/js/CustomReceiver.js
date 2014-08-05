@@ -132,7 +132,7 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 
 CustomReceiver.prototype.mediaOnGetStatusEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnGetStatusEvent_()");
-	console.debug(event.data);
+	console.debug(event);
 
-	this.mediaManager_['mediaOrigOnGetStatus'](event);
+	this.sendStatus(event.senderId, event.data.requestId, true);
 }
