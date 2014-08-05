@@ -26,7 +26,13 @@ function CustomReceiver() {
 CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	console.debug("CustomReceiver.js: initialiseMediaManagement_()");
 	this.mediaElement_ = document.getElementById('media');
-	this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+	
+	// Custom player to allow YT state to be propogated
+	var player = new cast.receiver.media.Player();
+	player.getState = function() { 
+		return this.getMediaState_();
+	}.bind(this);
+	this.mediaManager_ = new cast.receiver.MediaManager(player);
 }
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
@@ -90,7 +96,6 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		console.debug("CustomReceiver.js: sending load complete");
 		this.mediaManager_['mediaOrigOnLoad'](event);
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
@@ -137,6 +142,12 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 	function(currentStatus) {
 	console.debug("CustomReceiver.js: mediaCustomizedStatusCallbackEvent_()");
 
-	currentStatus.playerState = cast.receiver.media.PlayerState.PLAYING;
+	currentStatus.playerState = this.getMediaState_();
 	return currentStatus;
+}
+
+CustomReceiver.prototype.getMediaState_ = function(currentStatus) {
+	console.debug("CustomReceiver.js: getMediaState_()");
+
+	return cast.receiver.media.PlayerState.PLAYING;
 }
