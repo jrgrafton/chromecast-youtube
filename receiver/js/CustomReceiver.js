@@ -142,6 +142,6 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 }
 
 CustomReceiver.prototype.mediaGetPlayerState_ = function() {
-	]console.debug("CustomReceiver.js: mediaGetPlayerState_()");
+	console.debug("CustomReceiver.js: mediaGetPlayerState_()");
 	return cast.receiver.media.PlayerState.PLAYING;
 }
