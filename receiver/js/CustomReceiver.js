@@ -43,6 +43,7 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 
 	this.mediaManager_.customizedStatusCallback = 
 		this.mediaCustomizedStatusCallbackEvent_.bind(this);
+	this.mediaManager_.getPlayerState_ = this.mediaGetPlayerState_.bind(this);
 	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
@@ -135,7 +136,12 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
 	function(currentStatus) {
 	console.debug("CustomReceiver.js: mediaCustomizedStatusCallbackEvent_()");
-		
+
 	currentStatus.playerState = cast.receiver.media.PlayerState.PLAYING;
 	return currentStatus;
+}
+
+CustomReceiver.prototype.mediaGetPlayerState_ = function() {
+	]console.debug("CustomReceiver.js: mediaGetPlayerState_()");
+	return cast.receiver.media.PlayerState.PLAYING;
 }
