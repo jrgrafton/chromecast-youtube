@@ -41,7 +41,7 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
 	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus;
 
-	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this, this.mediaManager_.onLoad);
+	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
@@ -72,7 +72,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 
 
 /* Start event processing */
-CustomReceiver.prototype.mediaOnLoadEvent_ = function(super, event) {
+CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
@@ -87,8 +87,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(super, event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
-		super(event)
-		this.mediaManager_.mediaOrigOnLoad();
+		this.mediaManager_['mediaOrigOnLoad'](event);
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
