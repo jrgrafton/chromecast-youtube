@@ -15,6 +15,9 @@ function CustomReceiver() {
 	this.mediaOrigOnGetStatus_ = null;
 
 	// Startup functions
+	cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
+    cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
+
 	this.initialiseMediaManagement_()
 	this.hijackMediaEvents_();
 	this.initialiseSessionManagement_()
@@ -33,18 +36,28 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	console.debug("CustomReceiver.js: hijackMediaEvents_()");
 
 	// Save original references
-	this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
+	/* this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
 	this.mediaManager_['mediaOrigOnPause'] = this.mediaManager_.onPause;
 	this.mediaManager_['mediaOrigOnPlay'] = this.mediaManager_.onPlay;
 	this.mediaManager_['mediaOrigOnStop'] = this.mediaManager_.onStop;
 	this.mediaManager_['mediaOrigOnSeek'] = this.mediaManager_.onSeek;
 	this.mediaManager_['mediaOrigOnSetVolume'] = this.mediaManager_.onSetVolume;
-	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus;
+	this.mediaManager_['mediaOrigOnGetStatus'] = this.mediaManager_.onGetStatus; */
+
+
+
+
+	this.mediaManager_.onLoad = (function() {
+	    var originalFunction = mediaManager.onLoad;
+	    return function(event) {
+	    	this.mediaOnLoadEvent_(event, originalFunction);
+	    }.bind(this);
+	}.bind(this)());
 
 	this.mediaManager_.customizedStatusCallback = 
 		this.mediaCustomizedStatusCallbackEvent_.bind(this);
 	this.mediaManager_.getPlayerState_ = this.mediaGetPlayerState_.bind(this);
-	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+	//this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
@@ -74,7 +87,7 @@ CustomReceiver.prototype.startReceiver_ = function() {
 
 
 /* Start event processing */
-CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
+CustomReceiver.prototype.mediaOnLoadEvent_ = function(event, originalFunction) {
 	console.debug("CustomReceiver.js: mediaOnLoadEvent_()");
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
@@ -90,7 +103,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.broadcastStatus(true, event.data.requestId);
 		this.mediaManager_.sendLoadComplete();
-
+		originalFunction(event);
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
