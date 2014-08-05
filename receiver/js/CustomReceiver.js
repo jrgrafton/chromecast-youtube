@@ -87,7 +87,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_.sendLoadComplete();
-		this.mediaManager_['mediaOrigOnLoad'](event);
+		//this.mediaManager_['mediaOrigOnLoad'](event);
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
