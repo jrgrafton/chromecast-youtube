@@ -178,11 +178,10 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSetVolumeEvent_()");
 	
 	// No Youtube event for volume changed - set arbitrary timeout :/
-	var volume = event.data.volume;
-	window.youtubeWrapper.setVolume(volume);
+	window.youtubeWrapper.setVolume(event.data.volume);
 	setTimeout(function() {
 		this.mediaManager_['mediaOrigOnSetVolume'](event);
-	}.bind(this), 1000);
+	}.bind(this), 3000);
 }
 
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 

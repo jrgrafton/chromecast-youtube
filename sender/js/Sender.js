@@ -275,7 +275,9 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
     this.session_.media[0].setVolume(request,
         function() {
             console.log("Volume request completed successfully");
-        },
+            this.session_.setReceiverVolumeLevel(data.volume,
+                function(){}, function(){})
+        }.bind(this),
         function(e) {
             console.log("Volume request failed");
             console.error(e);
