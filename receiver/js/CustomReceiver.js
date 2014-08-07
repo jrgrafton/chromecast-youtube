@@ -94,6 +94,9 @@ CustomReceiver.prototype.startReceiver_ = function() {
 	this.castReceiverManager_.start(appConfig);
 }
 
+CustomReceiver.prototype.shutdownReceiver = function() {
+	this.castReceiverManager_.stop();
+}
 
 /* Start event processing */
 CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
