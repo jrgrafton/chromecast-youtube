@@ -75,8 +75,8 @@ YoutubeWrapper.prototype.seekVideo = function(seconds) {
 
 	// Immediately update UI since event can take a while to propogate
 	window.ui.updateVideoProgress_({
-		data.videoLength: this.getVideoLength(),
-		data.videoProgress: seconds
+		videoLength: this.getVideoLength(),
+		videoProgress: seconds
 	});
 	this.ytPlayer.seekTo(seconds, true);
 }
