@@ -162,15 +162,15 @@ CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSeekEvent_()");
-	var seekSeconds = event.data.currentTime;
 
-	var bufferingListener = function() {
-		document.removeEventListener("video-buffering", bufferingListener);
+	var seekSeconds = event.data.currentTime;
+	var playListener = function(e) {
+		document.removeEventListener("video-playing", playListener);
 		this.mediaManager_['mediaOrigOnSeek'](event);
 	}.bind(this);
 
 	// Attach playing event listener incase video never buffers
-	document.addEventListener("video-buffering", bufferingListener);
+	document.addEventListener("video-playing", playListener);
 	window.youtubeWrapper.seekVideo(seekSeconds);
 }
 
