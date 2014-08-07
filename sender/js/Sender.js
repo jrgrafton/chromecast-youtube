@@ -84,6 +84,13 @@ Sender.prototype.ccSessionCreatedListener_ = function(session) {
         this.ccSessionUpdatedListener_.bind(this));
     this.session_.addUpdateListener(this.ccSessionUpdatedListener_.bind(this));
 
+    // If session contains media attach listeners to it
+    if(this.session_.media.length > 0) {
+        // Add update listener
+        this.session_.media[0].removeUpdateListener(this.ccMediaUpdatedListener_);
+        this.session_.media[0].addUpdateListener(this.ccMediaUpdatedListener_.bind(this));
+    }
+
     // Broadcast event through DOM
     $(document).trigger({
         type: "session-updated",
@@ -208,7 +215,7 @@ Sender.prototype.respondMediaSeekRequest_ = function(data) {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    var request = chrome.cast.media.SeekRequest();
+    var request = new chrome.cast.media.SeekRequest();
     request.currentTime = data.seconds;
     this.session_.media[0].seek(request,
         function() {
@@ -226,7 +233,7 @@ Sender.prototype.respondMediaStopRequest_ = function() {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    this.session_.media[0].stop(chrome.cast.media.StopRequest(),
+    this.session_.media[0].stop(new chrome.cast.media.StopRequest(),
         function() {
             console.log("Stop request completed successfully");
         },
@@ -263,13 +270,12 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    var request = new chrome.cast.media.VolumeRequest(data.volume)
-    this.session_.media[0].setVolume(request,
+    this.session_.setReceiverVolumeLevel(data.volume,
         function() {
-            console.log("Load request completed successfully");
+            console.log("Volume request completed successfully");
         },
         function(e) {
-            console.log("Load request failed");
+            console.log("Volume request failed");
             console.error(e);
         }
     )

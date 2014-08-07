@@ -46,8 +46,8 @@ UI.prototype.updateUI_ = function(media) {
 	    var percentVolume = media.volume.level * 100;
 
 	    // Save current timing for use by other functions
-	    this.mediaCurrentTime = parseInt(currentTime);
-	    this.mediaTotalTime = totalTime;
+	    this.mediaCurrentTime = parseInt(currentTimeRaw);
+	    this.mediaTotalTime = parseInt(totalTimeRaw);
 	    
 	    // Current timing
 	    $(".current-time").html(currentTime);
@@ -60,13 +60,14 @@ UI.prototype.updateUI_ = function(media) {
 
 	    // Update author and title
 	    $(".meta").css("visibility", "visible");
-	    $(".author").html(media.media.metadata.author + ": ");
-	    $(".title").html(media.media.metadata.title);
+	    if(media.media.metadata) {
+	    	$(".author").html(media.media.metadata.author + ": ");
+	    	$(".title").html(media.media.metadata.title);
+		}
 
 	    // Enable all elements
 	    $("button").removeAttr("disabled");
 	    $("input").removeAttr("disabled");
-
 	    // Update local UI with interval rather than polling receiver
 	    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
 	    	console.log("UI.js: setting update interval");
@@ -77,7 +78,7 @@ UI.prototype.updateUI_ = function(media) {
 	    	}.bind(this), this.UPDATE_INTERVAL_TIME);
 	    } else if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
 	    	$("button.play").show();
-	    	$("button.paused").show();
+	    	$("button.pause").hide();
 	    }
 	}
 }
@@ -106,11 +107,11 @@ UI.prototype.initCommands_ = function() {
 			// Attach event listener to DOM element
 			var name = command.name;
 			var trigger = command.trigger;
-			$(element).on(trigger, function() {
+			$(element).on(trigger, function(e) {
 				var functionName = "command" +
 					name.charAt(0).toUpperCase() +
 					name.slice(1) + "_";
-				this[functionName](element, trigger);
+				this[functionName](element, e.type);
 			}.bind(this))
 		}
 	}.bind(this));
@@ -147,11 +148,10 @@ UI.prototype.commandPause_ = function(element, trigger) {
 UI.prototype.commandSeek_ = function(element, trigger) {
 	console.debug("UI.js: commandSeek_()");
 	var requestedPercentage = $(element).val();
-	var requestedSeconds =
-			this.mediaTotalTime * (100 / requestedPercentage);
+	var requestedSeconds = this.mediaTotalTime * (requestedPercentage / 100);
 	$(".current-time").html(this.secondsToTime_(requestedSeconds));
 
-	if(trigger === "mouseup") {
+	if(trigger === "change") {
 		// Broadcast event through DOM
 	    $(document).trigger({
 	        type: "media-seek-request",
@@ -162,6 +162,7 @@ UI.prototype.commandSeek_ = function(element, trigger) {
 
 UI.prototype.commandStop_ = function(element, trigger) {
 	console.debug("UI.js: commandStop_()");
+	$(element).attr("disabled", true);
 
     // Broadcast event through DOM
     $(document).trigger({
@@ -190,7 +191,7 @@ UI.prototype.commandVolume_ = function(element, trigger) {
 	var requestedPercentage = $(element).val();
 	$(".current-volume").html(requestedPercentage);
 
-	if(trigger === "mouseup") {
+	if(trigger === "change") {
 		// Broadcast event through DOM
 	    $(document).trigger({
 	        type: "media-volume-request",

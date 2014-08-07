@@ -6,6 +6,10 @@ html, body {
 	visibility: hidden;
 }
 
+.controls #videoID {
+	width: 130px;
+}
+
 .controls .play {
 	display: none;
 }

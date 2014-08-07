@@ -29,10 +29,12 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	
 	// Custom player to allow YT state to be propogated
 	var player = new cast.receiver.media.Player();
-	player.getPlayerState = function() { 
+	player.getPlayerState = function() {
+		console.debug("CustomReceiver.js: getPlayerState()");
 		return this.getPlayerState_();
 	}.bind(this);
 	player.getPlayerCurrentTimeSec = function() {
+		console.debug("CustomReceiver.js: getPlayerCurrentTimeSec()");
 		return this.getPlayerCurrentTimeSec();
 	}
 	this.mediaManager_ = new cast.receiver.MediaManager(player);
@@ -159,10 +161,25 @@ CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
-	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
-	console.debug(event.data);
+	console.debug("CustomReceiver.js: mediaOnSeekEvent_()");
 	var seekSeconds = event.data.currentTime;
 	window.youtubeWrapper.seekVideo(seekSeconds);
+
+	var bufferingListener = function() {
+		document.removeEventListener("video-buffering", bufferingListener);
+		document.removeEventListener("video-playing", playListener);
+		this.mediaManager_['mediaOrigOnSeek'](event);
+	}.bind(this);
+
+	var playListener = function(e) {
+		document.removeEventListener("video-playing", playListener);
+		document.removeEventListener("video-playing", bufferingListener);
+		this.mediaManager_['mediaOrigOnSeek'](event);
+	}.bind(this);
+
+	// Attach playing event listener incase video never buffers
+	document.addEventListener("video-buffering", bufferingListener);
+	document.addEventListener("video-playing", playListener);
 	this.mediaManager_['mediaOrigOnSeek'](event);
 }
 

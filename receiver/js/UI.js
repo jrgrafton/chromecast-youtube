@@ -33,14 +33,14 @@ UI.prototype.switchToState = function(state) {
 	// Start timeout for idle
 	if(state === "idle") {
 		this.idleStopTimeoutFunction = setTimeout(function() {
-			window.customReceiver.castReceiverManager.shutdownReceiver();
+			window.customReceiver.shutdownReceiver();
 		}.bind(this), this.IDLE_STOP_TIMEOUT);
 	}
 
 	// Start timeout for pause
 	if(state === "pause") {
 		this.pauseStopTimeoutFunction = setTimeout(function() {
-			window.customReceiver.castReceiverManager.shutdownReceiver();
+			window.customReceiver.shutdownReceiver();
 		}.bind(this), this.PAUSE_STOP_TIMEOUT);
 	}
 }
