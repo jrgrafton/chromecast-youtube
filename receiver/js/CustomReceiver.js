@@ -36,6 +36,20 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 		return this.getPlayerCurrentTimeSec();
 	}
 	this.mediaManager_ = new cast.receiver.MediaManager(player);
+
+	// Broadcast any Youtube state changes
+	document.addEventListener("video-ended", function() {
+		console.debug("CustomReceiver.js: broadcast video-ended");
+		this.mediaManager_.broadcastStatus(true);
+	}.bind(this));
+	document.addEventListener("video-buffering", function() {
+		console.debug("CustomReceiver.js: broadcast video-buffering");
+		this.mediaManager_.broadcastStatus(true);
+	}.bind(this));
+	document.addEventListener("video-unstarted", function() {
+		console.debug("CustomReceiver.js: broadcast video-unstarted");
+		this.mediaManager_.broadcastStatus(true);
+	}.bind(this));
 }
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
@@ -107,20 +121,38 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
+
+	var pauseListener = function(e) {
+		document.removeEventListener("video-paused", pauseListener);
+		this.mediaManager_['mediaOrigOnPause'](event);
+	}.bind(this);
+
+	document.addEventListener("video-paused", pauseListener);
 	window.youtubeWrapper.pauseVideo();
-	this.mediaManager_['mediaOrigOnPause'](event);
 }
 
 CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
+
+	var playListener = function(e) {
+		document.removeEventListener("video-playing", playListener);
+		this.mediaManager_['mediaOrigOnPlay'](event);
+	}.bind(this);
+
+	document.addEventListener("video-playing", playListener);
 	window.youtubeWrapper.playVideo();
-	this.mediaManager_['mediaOrigOnPlay'](event);
 }
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
+	
+	var unstartedListener = function() {
+		document.removeEventListener("video-unstarted", unstartedListener);
+		this.mediaManager_['mediaOrigOnStop'](event);
+	}.bind(this);
+
+	document.addEventListener("video-unstarted", unstartedListener);
 	window.youtubeWrapper.stopVideo();
-	this.mediaManager_['mediaOrigOnStop'](event);
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
