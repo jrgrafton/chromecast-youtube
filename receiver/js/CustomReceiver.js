@@ -158,9 +158,10 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 
 // START: Player functions
 CustomReceiver.prototype.getPlayerState_ = function() {
-	console.debug("CustomReceiver.js: getMediaState_()");
+	console.debug("CustomReceiver.js: getPlayerState_()");
 
 	var youtubeState = window.youtubeWrapper.getState();
+	console.log("CustomReceiver.js: Youtube state is: " + youtubeState);
 	switch(youtubeState) {
 		case "ended":
 			return cast.receiver.media.PlayerState.IDLE;
