@@ -178,7 +178,7 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSetVolumeEvent_()");
 	
 	// No Youtube event for volume changed - set arbitrary timeout :/
-	window.youtubeWrapper.setVolume(parseInt(event.data.volume) * 100);
+	window.youtubeWrapper.setVolume(parseInt(event.data.volume.level * 100));
 	setTimeout(function() {
 		this.mediaManager_['mediaOrigOnSetVolume'](event);
 	}.bind(this), 3000);
