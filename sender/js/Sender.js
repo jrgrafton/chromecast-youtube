@@ -270,7 +270,9 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    this.session_.setReceiverVolumeLevel(data.volume,
+    var request = new chrome.cast.media.VolumeRequest();
+    request.volume = new chrome.cast.Volume(data.volume);
+    this.session_.media[0].setVolume(request,
         function() {
             console.log("Volume request completed successfully");
         },

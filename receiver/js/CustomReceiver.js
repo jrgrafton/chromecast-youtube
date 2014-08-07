@@ -182,7 +182,7 @@ CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	window.youtubeWrapper.setVolume(volume);
 	setTimeout(function() {
 		this.mediaManager_['mediaOrigOnSetVolume'](event);
-	}, 2000);
+	}.bind(this), 1000);
 }
 
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
