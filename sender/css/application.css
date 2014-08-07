@@ -2,13 +2,37 @@ html, body {
     height: 100%;
 }
 
-input[type=range] {
+.meta {
+	visibility: hidden;
+}
+
+.controls .play {
+	display: none;
+}
+
+.controls .current-time {
+	margin-left: 0.5em;
+}
+
+.controls .progress-slider {
 	width: auto;
 	display: inline;
 	top: 4px;
 	position: relative;
 }
 
-.meta {
-	visibility: hidden;
+.controls .volume-slider {
+	-webkit-appearance: slider-vertical;
+	width: 2em;
+	height: 85px;
+	display: inline;
+	position: absolute;
+	top: -60px;
 }
+
+.controls .current-volume {
+	left: 2.25em;
+	position: relative;
+	font-weight: bold;;
+}
+

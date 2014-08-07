@@ -1,216 +1,258 @@
  function Sender() {
-    // See https://cast.google.com/publish/#/overview
     this.applicationID_ = "917A9D6E";
     this.session_ = null;
-    this.PROGRESS_INTERVAL = 1000;
 
-    // Wait for Chromecast to be detected
-    window['__onGCastApiAvailable'] = function(loaded, errorInfo) {
-      if (loaded) {
-        this.initializeCastApi_();
-      } else {
-        console.log(errorInfo);
-      }
-    }.bind(this);
+    // Setup functions
+    this.initResponders_();
+    this.ccInitAPI_();
 };
 
-Sender.prototype.initializeCastApi_ = function() {
-    console.debug("Sender.js: initializeCastApi_()");     
+/***************************/
+/** Sender initialisation **/
+/***************************/
+Sender.prototype.ccInitAPI_ = function() {
+    console.debug("Sender.js: ccInitAPI_()");
+
     // Create API config with session listeners
     var sessionRequest = new chrome.cast.SessionRequest(this.applicationID_);
-    var apiConfig = new chrome.cast.ApiConfig(sessionRequest,
-        function(e) {
-            console.log('connected to session: ' + e.sessionId);
-            this.session_ = e;
-
-            // Initialise UI only after session exists
-            this.initializeUI_();
-            this.session_.
-                addMediaListener(this.onMediaUpdateListener_.bind(this))
-        }.bind(this),
-        function(e) {
-            if (e === 'available') { console.log('receiver found'); }
-            else { console.log('receiver list empty'); }
-        }
+    var apiConfig = new chrome.cast.ApiConfig(sessionRequest, 
+        this.ccSessionCreatedListener_.bind(this),
+        this.ccReceiversUpdatedListener_.bind(this)
     );
 
-    // Initialise Chromecast
-    chrome.cast.initialize(apiConfig,
-    function() {
-        // Devices are available and can be connected to, lets grab a session
-        console.log("initialization success");
-        setTimeout(function() {
-            if(this.session_ == null) {
-                console.log("no existing session found - requesting new one");
-                chrome.cast.requestSession(function(e) {
-                    console.log('session request success');
-                    this.session_ = e;
 
-                    // Initialise UI only after session exists
-                    this.session_.
-                        addMediaListener(this.onMediaUpdateListener_.
-                            bind(this));
-                    this.initializeUI_();
-                }.bind(this),
-                function(e) {
-                    console.log('session request failure');
-                    console.log(e);
-                });
-            }
-        }.bind(this), 2000);
-    }.bind(this),
-    function(e){
-        console.log("initialization failure");
-        console.log(e);
+    this.ccConnectToDevice_(apiConfig);
+}
+
+Sender.prototype.ccConnectToDevice_ = function(apiConfig) {
+    // Initialise Chromecast
+    chrome.cast.initialize(apiConfig, this.ccDidConnect_.bind(this),
+        this.ccDidFailConnect_.bind(this));
+}
+
+Sender.prototype.ccDidConnect_ = function() {
+    console.debug("Sender.js: ccDidConnect_()");
+
+    // Wait two seconds to allow existing session to be resumed
+    setTimeout(function() {
+        if(this.session_ === null) {
+            this.ccCreateSession_();
+        }
+    }.bind(this), 2000);
+}
+
+Sender.prototype.ccDidFailConnect_ = function(e) {
+    console.debug("Sender.js: ccDidFailConnect_()");
+    console.error(e);
+}
+
+Sender.prototype.ccCreateSession_ = function() {
+    console.debug("Sender.js: ccCreateSession_()");
+    chrome.cast.requestSession(
+        this.ccSessionCreatedListener_.bind(this),
+        this.ccCreateSessionFailure_.bind(this)
+    );
+}
+
+Sender.prototype.ccCreateSessionFailure_ = function(e) {
+    console.debug("Sender.js: ccCreateSessionFailure_()");
+    console.error(e);
+}
+
+
+
+/*********************/
+/** Event listeners **/
+/*********************/
+Sender.prototype.ccReceiversUpdatedListener_ = function(e) {
+    console.debug("Sender.js: ccReceiversUpdatedListener_()");
+
+    if (e === 'available') { console.log('receiver found'); }
+    else { console.log('receiver list empty'); }
+}
+
+Sender.prototype.ccSessionCreatedListener_ = function(session) {
+    console.debug("Sender.js: ccSessionCreatedListener_()");
+    this.session_ = session;
+
+    // Add media loaded listener
+    this.session_.removeMediaListener(this.ccMediaLoadedListener_.bind(this));
+    this.session_.addMediaListener(this.ccMediaLoadedListener_.bind(this));
+
+    // Add session update listener
+    this.session_.removeUpdateListener(
+        this.ccSessionUpdatedListener_.bind(this));
+    this.session_.addUpdateListener(this.ccSessionUpdatedListener_.bind(this))
+} 
+
+Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
+    console.debug("Sender.js: ccSessionUpdatedListener_(" + isAlive + ")");
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "session-updated",
+        session: this.session_,
+        isAlive: isAlive
     });
 }
 
-Sender.prototype.onMediaUpdateListener_ = function(media) {
-    console.debug("Sender.js: onMediaUpdateListener_()");
-    this.updateUI_(media);
-    media.addUpdateListener(function() {
-        this.updateUI_(media);
+Sender.prototype.ccMediaLoadedListener_ = function(media) {
+    console.debug("Sender.js: ccMediaLoadedListener_()");
+
+    // Add update listener
+    media.removeUpdateListener(this.ccMediaUpdatedListener_);
+    media.addUpdateListener(this.ccMediaUpdatedListener_.bind(this));
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "media-loaded",
+        media: media
+    });
+}
+
+Sender.prototype.ccMediaUpdatedListener_ = function(media) {
+    console.debug("Sender.js: ccMediaUpdatedListener_()");
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "media-updated",
+        media: media
+    });
+}
+
+
+/**********************/
+/** Event responders **/
+/**********************/
+Sender.prototype.initResponders_ = function() {
+    console.debug("Sender.js: initResponders_()");
+
+    $(document).on("media-play-request", function(e) {
+        if(!_this.session || _this.session.media.length === 0) return;
+        this.respondMediaPlayRequest_();
+    }.bind(this));
+
+    $(document).on("media-pause-request", function(e) {
+        if(!_this.session || _this.session.media.length === 0) return;
+        this.respondMediaPauseRequest_();
+    }.bind(this));
+
+    $(document).on("media-seek-request", function(e) {
+        if(!_this.session || _this.session.media.length === 0) return;
+        this.respondMediaSeekRequest_(e.data);
+    }.bind(this));
+
+    $(document).on("media-stop-request", function(e) {
+        if(!_this.session || _this.session.media.length === 0) return;
+        this.respondMediaStopRequest_();
+    }.bind(this));
+
+    $(document).on("media-load-request", function(e) {
+        if(!_this.session || _this.session.media.length === 0) return;
+        this.respondMediaLoadRequest_(e.data);
+    }.bind(this));
+
+    $(document).on("media-volume-request", function(e) {
+        if(!_this.session || _this.session.media.length === 0) return;
+        this.respondMediaVolumeRequest_(e.data);
     }.bind(this));
 }
 
-Sender.prototype.secondsToTime_ = function(seconds) {
-    console.debug("Sender.js: secondsToTime_()");
-    var minutes = parseInt(Math.floor(seconds / 60));
-    var seconds = parseInt(seconds % 60);
-    if(isNaN(minutes)) minutes = 0;
-    if(isNaN(seconds)) seconds = 0;
 
-    if(seconds < 10) seconds = "0" + seconds;
-    return minutes + ":" + seconds;
-} 
+Sender.prototype.respondMediaPlayRequest_ = function() {
+    console.debug("Sender.js: respondMediaPlayRequest_()");
 
-Sender.prototype.initializeUI_ = function() {
-    console.debug("Sender.js: initializeUI_()");
-    $("input, button").on("mouseup", function(e) {
-        var commandName = $(e.target).data("command");
-        var functionName = "command" + commandName.charAt(0).toUpperCase() +
-            commandName.slice(1) + "_";
-        this[functionName](e.target);
-    }.bind(this))
-
-    setInterval(this.commandStatusRequest_.bind(this), this.PROGRESS_INTERVAL);
-
-    if(this.session_.media.length > 0) {
-        if(this.session_.media[0].playerState ===
-                chrome.cast.media.PlayerState.PAUSED) {
-            $("button[data-command='pause']").html("Play");
-            $("button[data-command='pause']").data("command", "play");
-        }
-        this.updateUI_(this.session_.media[0]);
-        this.session_.media[0].addUpdateListener(function() {
-            this.updateUI_(this.session_.media[0]);
-        }.bind(this));
-    }
-}
-
-Sender.prototype.updateUI_ = function(media) {
-    console.debug("Sender.js: updateUI_(" + media + ")");
-    console.log(media);
-    if(media.playerState === chrome.cast.media.PlayerState.IDLE) {
-        return;
-    }
-
-    
-    var currentTimeRaw = media.currentTime;
-    var totalTimeRaw = media.media.duration;
-    var currentTime = this.secondsToTime_(currentTimeRaw);
-    var totalTime = this.secondsToTime_(totalTimeRaw);
-    var percentComplete = (100 / totalTimeRaw) * currentTimeRaw;
-    
-    // Current timing
-    $(".current-time").html(currentTime);
-    $(".total-time").html(totalTime);
-    $("#progress-bar").val(percentComplete);
-
-    // Update author and title
-    $(".meta").css("visibility", "visible");
-    $(".author").html(media.media.metadata.author + ": ");
-    $(".title").html(media.media.metadata.title);
-}
-
-Sender.prototype.commandStatusRequest_ = function() {
-    console.debug("Sender.js: commandStatusRequest_()");
-    if(!this.session_.media[0]) return;
-
-    this.session_.media[0].getStatus(new chrome.cast.media.GetStatusRequest(),
-        function(e) {
-            console.log("Status request completed successfully");
-        },
-        function(e) {
-            console.log("Status request failed");
-        }
-    );
-} 
-
-Sender.prototype.commandLoad_ = function(e) {
-    console.debug("Sender.js: commandLoad_()");
-
-    // Set loading text
-    $(".meta").css("visibility", "visible");
-
-    // Load actual videp
-    var videoID = $("#videoID").val(); 
-    var mediaInfo = new chrome.cast.media.MediaInfo(videoID, "yt");
-    var request = new chrome.cast.media.LoadRequest(mediaInfo);
-    request.autoplay = true;
-    request.currentTime = 0;
-    this.session_.loadMedia(request, this.onMediaUpdateListener_.bind(this), 
-        function() {
-        console.error("commandLoad_(): failure")
-    });
-}
-
-Sender.prototype.commandPause_ = function(e) {
-    console.debug("Sender.js: commandPause_()");
-    if(!this.session_.media[0]) return;
-
-    // Switch command for next press
-    $(e).data("command", "play");
-    $(e).html("Play");
-    $(e).prop("disabled", true);
-
+        // Media update listener will dispatch 
+    // state change back to requesting entity
     this.session_.media[0].pause(new chrome.cast.media.PauseRequest(),
         function() {
             console.log("Pause request completed successfully");
-            $(e).prop("disabled", false);
         },
         function(e) {
             console.log("Pause request failed");
-            $(e).prop("disabled", false);
-        }
-    );
-}
-
-Sender.prototype.commandPlay_ = function(e) {
-    console.debug("Sender.js: commandPlay_()");
-    if(!this.session_.media[0]) return;
-
-     // Switch command for next press
-    $(e).data("command", "pause");
-    $(e).html("Pause");
-    $(e).prop("disabled", true);
-
-    this.session_.media[0].play(new chrome.cast.media.PlayRequest(),
-        function() {
-            console.log("Play request completed successfully");
-            $(e).prop("disabled", false);
-        },
-        function(e) {
-            console.log("Play request failed");
-            $(e).prop("disabled", false);
         }
     )
 }
 
-Sender.prototype.commandSeek_ = function(e) {
-    console.debug("Sender.js: commandSeek_()");
-    if(!this.session_.media[0]) return;
+Sender.prototype.respondMediaPauseRequest_ = function() {
+    console.debug("Sender.js: respondMediaPauseRequest_()");
 
-    // Switch command for next press
-    
+    // Media update listener will dispatch 
+    // state change back to requesting entity
+    this.session_.media[0].play(new chrome.cast.media.PlayRequest(),
+        function() {
+            console.log("Play request completed successfully");
+        },
+        function(e) {
+            console.log("Play request failed");
+        }
+    )
+}
+
+Sender.prototype.respondMediaSeekRequest_ = function(data) {
+    console.debug("Sender.js: respondMediaSeekRequest_()");
+
+    // Media update listener will dispatch 
+    // state change back to requesting entity
+    var request = chrome.cast.media.SeekRequest();
+    request.currentTime = data.seconds;
+    this.session_.media[0].seek(request,
+        function() {
+            console.log("Seek request completed successfully");
+        },
+        function(e) {
+            console.log("Seek request failed");
+        }
+    )
+}
+
+Sender.prototype.respondMediaStopRequest_ = function() {
+    console.debug("Sender.js: respondMediaStopRequest_()");
+
+    // Media update listener will dispatch 
+    // state change back to requesting entity
+    this.session_.media[0].stop(chrome.cast.media.StopRequest(),
+        function() {
+            console.log("Stop request completed successfully");
+        },
+        function(e) {
+            console.log("Stop request failed");
+        }
+    )
+}
+
+Sender.prototype.respondMediaLoadRequest_ = function(data) {
+    console.debug("Sender.js: respondMediaLoadRequest_()");
+
+    // Media update listener will dispatch 
+    // state change back to requesting entity
+    var mediaInfo = new chrome.cast.media.MediaInfo(data.id, "yt");
+    var request = new chrome.cast.media.LoadRequest(mediaInfo);
+    request.autoplay = true;
+    request.currentTime = 0;
+
+    this.session_.media[0].load(request,
+        function() {
+            console.log("Load request completed successfully");
+        },
+        function(e) {
+            console.log("Load request failed");
+        }
+    )
+}
+
+Sender.prototype.respondMediaVolumeRequest_ = function(data) {
+    console.debug("Sender.js: respondMediaVolumeRequest_()");
+
+    // Media update listener will dispatch 
+    // state change back to requesting entity
+    var request = new chrome.cast.media.VolumeRequest(data.volume)
+    this.session_.media[0].setVolume(request,
+        function() {
+            console.log("Load request completed successfully");
+        },
+        function(e) {
+            console.log("Load request failed");
+        }
+    )
 }

@@ -10,14 +10,6 @@
         <!-- Styles -->
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="css/application.css">
-
-        <!-- JS -->
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
-
-
-        <script type="text/javascript" src="js/Sender.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
     </head>
     <body>
         <div class="container">
@@ -30,28 +22,45 @@
             </div>
             <br>
             <div class="row">
-                <div class="col-md-12 text-center">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
                     <h5 class="meta">
                         <span class="author">Loading...</span>
                         <i><span class="title"></span></i>
                     </h5>
                 </div>
+                <div class="col-md-3"></div>
             </div>
             <div class="row">
-                <div class="col-md-12 text-center">
-                    <form class="form-inline" role="form">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <form class="form-inline controls" role="form">
                         <div class="form-group">
                             <label class="sr-only" for="videoID">VideoID</label>
                             <input type="text" class="form-control" id="videoID" placeholder="Enter Youtube videoID" value="i_mKY2CQ9Kk">
                         </div>
-                        <button type="button" class="btn btn-default" data-command="load">Load</button>
-                        <button type="button" class="btn btn-default" data-command="pause">Pause</button>
+                        
+                        <button type="button" class="btn btn-default" data-commands='[{"name":"load","trigger":"mouseup"}]'>Load</button>
+                        <button type="button" class="pause btn btn-default" data-commands='[{"name":"pause","trigger":"mouseup"}]' disabled=true>Pause</button>
+                        <button type="button" class="play btn btn-default" data-commands='[{"name":"pause","trigger":"mouseup"}]'>Play</button>
+
                         <span class="current-time">--:--</span>
-                        <input type="range" id="progress-bar" min="0" max="100" step="1" value="0" data-command="seek">
+                        <input type="range" class="progress-slider" min="0" max="100" step="1" value="0" data-commands='[{"name": "seek", "trigger": "mouseup"}, {"name": "seek", "trigger": "mousemove"}]' disabled=true>
                         <span class="total-time">--:--</span>
+
+                        <input type="range" class="volume-slider" min="0" max="100" step="1" value="0" data-commands='[{"name": "volume", "trigger": "mouseup"}, {"name": "volume", "trigger": "mousemove"}]' disabled=true>
+                        <small class="current-volume"><span>0</span></small>
                     </form>
                 </div>
+                <div class="col-md-3"></div>
             </div>
         </div>
+
+        <!-- JS -->
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+        <script type="text/javascript" src="js/Sender.js"></script>
+        <script type="text/javascript" src="js/UI.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
     </body>
 </html>

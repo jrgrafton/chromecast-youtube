@@ -1,0 +1,223 @@
+ function UI() {
+	this.UPDATE_INTERVAL_TIME = 500; // How often to update current time when media is playing
+	this.updateInterval = null;
+	this.mediaCurrentTime = 0;
+	this.mediaTotalTime = 0;
+
+    // Setup functions
+    this.initUI_();
+};
+
+/*********************/
+/** DOM interaction **/
+/*********************/
+UI.prototype.initUI_ = function() {
+	console.debug("UI.js: initUI_()");
+	this.initResponders_();
+	this.initCommands_();
+}
+
+UI.prototype.updateUI_ = function(media) {
+	console.debug("UI.js: updateUI_()");
+
+	// Recreate progress update interval every time UI is updated
+	clearInterval(this.updateInterval);
+
+	if(media === null) {
+		// Meta
+		$(".meta").css("visibility", "hidden");
+
+		// Controls
+		$(".progress-slider, .volume-slider").val(0);
+		$(".current-time, .total-time").html("--:--");
+		$(".volume-label").html("0");
+		$("button.play").hide();
+		$("button.pause").show().attr("disabled", true);
+		$("button.pause, input[type=range]").show().attr("disabled", true);
+
+	} else {
+		var currentTimeRaw = media.currentTime;
+	    var totalTimeRaw = media.media.duration;
+	    var currentTime = this.secondsToTime_(currentTimeRaw);
+	    var totalTime = this.secondsToTime_(totalTimeRaw);
+	    var percentComplete = (100 / totalTimeRaw) * currentTimeRaw;
+
+	    // Save current timing for use by other functions
+	    this.mediaCurrentTime = currentTime;
+	    this.mediaTotalTime = totalTime;
+	    
+	    // Current timing
+	    $(".current-time").html(currentTime);
+	    $(".total-time").html(totalTime);
+	    $("#progress-bar").val(percentComplete);
+
+	    // Update author and title
+	    $(".meta").css("visibility", "visible");
+	    $(".author").html(media.media.metadata.author + ": ");
+	    $(".title").html(media.media.metadata.title);
+
+	    // Enable all elements
+	    $("button").removeAttr("disabled");
+	    $("input").removeAttr("disabled");
+
+	    // Update local UI with interval rather than polling receiver
+	    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
+	    	setInterval(function() {
+	    		this.mediaCurrentTime += this.UPDATE_INTERVAL_TIME;
+	    		$(".current-time").html(this.mediaCurrentTime);
+	    	}.bind(this), this.UPDATE_INTERVAL_TIME);
+	    }
+	}
+}
+
+UI.prototype.secondsToTime_ = function(seconds) {
+    console.debug("UI.js: secondsToTime_()");
+    var minutes = parseInt(Math.floor(seconds / 60));
+    var seconds = parseInt(seconds % 60);
+    if(isNaN(minutes)) minutes = 0;
+    if(isNaN(seconds)) seconds = 0;
+
+    if(seconds < 10) seconds = "0" + seconds;
+    return minutes + ":" + seconds;
+} 
+
+/******************/
+/** DOM commands **/
+/******************/
+UI.prototype.initCommands_ = function() {
+	console.debug("UI.js: initCommands_()");
+	$.each($("*[data-commands]"), function(index, element) {
+		var commands = $(element).data("commands");
+		for(var i = 0; i < commands.length; i++) {
+			var command = commands[i];
+
+			// Attach event listener to DOM element
+			var name = command.name;
+			var trigger = command.trigger;
+			$(element).on(trigger, function() {
+				var functionName = "command" +
+					name.charAt(0).toUpperCase() +
+					name.slice(1) + "_";
+				this[functionName](element, trigger);
+			}.bind(this))
+		}
+	}.bind(this));
+}
+
+UI.prototype.commandPlay_ = function(element, trigger) {
+	console.debug("UI.js: commandPlay_()");
+
+	// Toggle play / pause
+	$("buttons").attr("disabled", true);
+	$(element).hide();
+	$("button.pause").show();
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "media-play-request"
+    });
+}
+
+UI.prototype.commandPause_ = function(element, trigger) {
+	console.debug("UI.js: commandPause_()");
+
+	// Toggle play / pause
+	$("buttons").attr("disabled", true);
+	$(element).hide();
+	$("button.play").show();
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "media-pause-request"
+    });
+}
+
+UI.prototype.commandSeek_ = function(element, trigger) {
+	console.debug("UI.js: commandPause_()");
+	var requestedPercentage = $(element).val();
+	var requestedSeconds =
+			this.mediaTotalTime * (100 / requestedPercentage);
+	$(".current-time").html(this.secondsToTime_(requestedSeconds));
+
+	if(trigger === "mouseup") {
+		// Broadcast event through DOM
+	    $(document).trigger({
+	        type: "media-seek-request",
+	        seconds: requestedSeconds
+	    });
+	}
+}
+
+UI.prototype.commandStop_ = function(element, trigger) {
+	console.debug("UI.js: commandStop_()");
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "media-stop-request"
+    });
+}
+
+UI.prototype.commandLoad_ = function(element, trigger) {
+	console.debug("UI.js: commandLoad_()");
+
+	// Disable all elements during load
+	$("buttons").attr("disabled", true);
+	$("input").attr("disabled", true);
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "media-load-request",
+        id : $("#videoID").html()
+    });
+}
+
+UI.prototype.commandVolume_ = function(element, trigger) {
+	console.debug("UI.js: commandVolume_()");
+
+	// Change volume
+	var requestedPercentage = $(element).val();
+	$(".current-volume").html(requestedPercentage);
+
+	if(trigger === "mouseup") {
+		// Broadcast event through DOM
+	    $(document).trigger({
+	        type: "media-volume-request",
+	        volume: 0.01 * requestedPercentage
+	    });
+	}
+}
+
+/**********************/
+/** Event responders **/
+/**********************/
+UI.prototype.initResponders_ = function() {
+	console.debug("UI.js: initResponders_()");
+	$(document).on("media-updated", function(e) {
+        this.respondMediaUpdated_(e.data);
+    }.bind(this));
+
+    $(document).on("media-loaded", function(e) {
+        this.respondMediaLoaded_(e.data);
+    }.bind(this));
+
+    $(document).on("session-updated", function(e) {
+        this.respondSessionUpdated_(e.data);
+    }.bind(this));
+}
+
+UI.prototype.respondMediaUpdated_ = function(data) {
+	console.debug("UI.js: respondMediaUpdated_()");
+	this.updateUI_(data.media);
+}
+
+UI.prototype.respondMediaLoaded_ = function(data) {
+	console.debug("UI.js: respondMediaLoaded_()");
+	this.updateUI_(data.media);
+}
+
+UI.prototype.respondSessionUpdated_ = function(data) {
+	console.debug("UI.js: respondSessionUpdated_()");
+	if(data.isAlive) {
+		this.updateUI_(null);
+	}
+}
