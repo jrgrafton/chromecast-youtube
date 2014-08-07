@@ -72,6 +72,12 @@ YoutubeWrapper.prototype.stopVideo = function() {
 
 YoutubeWrapper.prototype.seekVideo = function(seconds) {
 	console.debug("YoutubeWrapper.js: seekTo(" + seconds + ")");
+
+	// Immediately update UI since event can take a while to propogate
+	window.ui.updateVideoProgress_({
+		data.videoLength: this.getVideoLength(),
+		data.videoProgress: seconds
+	});
 	this.ytPlayer.seekTo(seconds, true);
 }
 
