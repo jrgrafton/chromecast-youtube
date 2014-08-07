@@ -82,7 +82,14 @@ Sender.prototype.ccSessionCreatedListener_ = function(session) {
     // Add session update listener
     this.session_.removeUpdateListener(
         this.ccSessionUpdatedListener_.bind(this));
-    this.session_.addUpdateListener(this.ccSessionUpdatedListener_.bind(this))
+    this.session_.addUpdateListener(this.ccSessionUpdatedListener_.bind(this));
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "session-updated",
+        session: this.session_,
+        isAlive: true
+    });
 } 
 
 Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
@@ -110,13 +117,18 @@ Sender.prototype.ccMediaLoadedListener_ = function(media) {
     });
 }
 
-Sender.prototype.ccMediaUpdatedListener_ = function(media) {
+Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccMediaUpdatedListener_()");
+    var media = null;
+    if(isAlive) {
+        media = this.session_.media[0];
+    }
 
     // Broadcast event through DOM
     $(document).trigger({
         type: "media-updated",
-        media: media
+        media: media,
+        isAlive: isAlive
     });
 }
 
@@ -127,34 +139,34 @@ Sender.prototype.ccMediaUpdatedListener_ = function(media) {
 Sender.prototype.initResponders_ = function() {
     console.debug("Sender.js: initResponders_()");
 
+    $(document).on("media-load-request", function(e) {
+        if(!this.session_) return;
+        this.respondMediaLoadRequest_(e);
+    }.bind(this));
+
     $(document).on("media-play-request", function(e) {
-        if(!_this.session || _this.session.media.length === 0) return;
+        if(!this.session_ || this.session_.media.length === 0) return;
         this.respondMediaPlayRequest_();
     }.bind(this));
 
     $(document).on("media-pause-request", function(e) {
-        if(!_this.session || _this.session.media.length === 0) return;
+        if(!this.session_ || this.session_.media.length === 0) return;
         this.respondMediaPauseRequest_();
     }.bind(this));
 
     $(document).on("media-seek-request", function(e) {
-        if(!_this.session || _this.session.media.length === 0) return;
-        this.respondMediaSeekRequest_(e.data);
+        if(!this.session_ || this.session_.media.length === 0) return;
+        this.respondMediaSeekRequest_(e);
     }.bind(this));
 
     $(document).on("media-stop-request", function(e) {
-        if(!_this.session || _this.session.media.length === 0) return;
+        if(!this.session_ || this.session_.media.length === 0) return;
         this.respondMediaStopRequest_();
     }.bind(this));
 
-    $(document).on("media-load-request", function(e) {
-        if(!_this.session || _this.session.media.length === 0) return;
-        this.respondMediaLoadRequest_(e.data);
-    }.bind(this));
-
     $(document).on("media-volume-request", function(e) {
-        if(!_this.session || _this.session.media.length === 0) return;
-        this.respondMediaVolumeRequest_(e.data);
+        if(!this.session_ || this.session_.media.length === 0) return;
+        this.respondMediaVolumeRequest_(e);
     }.bind(this));
 }
 
@@ -164,12 +176,13 @@ Sender.prototype.respondMediaPlayRequest_ = function() {
 
         // Media update listener will dispatch 
     // state change back to requesting entity
-    this.session_.media[0].pause(new chrome.cast.media.PauseRequest(),
+    this.session_.media[0].play(new chrome.cast.media.PauseRequest(),
         function() {
-            console.log("Pause request completed successfully");
+            console.log("Play request completed successfully");
         },
         function(e) {
-            console.log("Pause request failed");
+            console.log("Play request failed");
+            console.error(e);
         }
     )
 }
@@ -179,12 +192,13 @@ Sender.prototype.respondMediaPauseRequest_ = function() {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    this.session_.media[0].play(new chrome.cast.media.PlayRequest(),
+    this.session_.media[0].pause(new chrome.cast.media.PlayRequest(),
         function() {
-            console.log("Play request completed successfully");
+            console.log("Pause request completed successfully");
         },
         function(e) {
-            console.log("Play request failed");
+            console.log("Pause request failed");
+            console.error(e);
         }
     )
 }
@@ -202,6 +216,7 @@ Sender.prototype.respondMediaSeekRequest_ = function(data) {
         },
         function(e) {
             console.log("Seek request failed");
+            console.error(e);
         }
     )
 }
@@ -217,6 +232,7 @@ Sender.prototype.respondMediaStopRequest_ = function() {
         },
         function(e) {
             console.log("Stop request failed");
+            console.error(e);
         }
     )
 }
@@ -231,12 +247,13 @@ Sender.prototype.respondMediaLoadRequest_ = function(data) {
     request.autoplay = true;
     request.currentTime = 0;
 
-    this.session_.media[0].load(request,
+    this.session_.loadMedia(request,
         function() {
             console.log("Load request completed successfully");
         },
         function(e) {
             console.log("Load request failed");
+            console.error(e);
         }
     )
 }
@@ -253,6 +270,7 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
         },
         function(e) {
             console.log("Load request failed");
+            console.error(e);
         }
     )
 }

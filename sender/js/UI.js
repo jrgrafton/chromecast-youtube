@@ -21,35 +21,42 @@ UI.prototype.updateUI_ = function(media) {
 	console.debug("UI.js: updateUI_()");
 
 	// Recreate progress update interval every time UI is updated
+	console.log("UI.js: clearing update interval");
 	clearInterval(this.updateInterval);
 
-	if(media === null) {
+	if(media === null ||
+			media.playerState === chrome.cast.media.PlayerState.IDLE) {
+
 		// Meta
 		$(".meta").css("visibility", "hidden");
 
 		// Controls
 		$(".progress-slider, .volume-slider").val(0);
 		$(".current-time, .total-time").html("--:--");
-		$(".volume-label").html("0");
+		$(".current-volume").html("0");
 		$("button.play").hide();
 		$("button.pause").show().attr("disabled", true);
 		$("button.pause, input[type=range]").show().attr("disabled", true);
-
 	} else {
 		var currentTimeRaw = media.currentTime;
 	    var totalTimeRaw = media.media.duration;
 	    var currentTime = this.secondsToTime_(currentTimeRaw);
 	    var totalTime = this.secondsToTime_(totalTimeRaw);
 	    var percentComplete = (100 / totalTimeRaw) * currentTimeRaw;
+	    var percentVolume = media.volume.level * 100;
 
 	    // Save current timing for use by other functions
-	    this.mediaCurrentTime = currentTime;
+	    this.mediaCurrentTime = parseInt(currentTime);
 	    this.mediaTotalTime = totalTime;
 	    
 	    // Current timing
 	    $(".current-time").html(currentTime);
 	    $(".total-time").html(totalTime);
-	    $("#progress-bar").val(percentComplete);
+	    $(".progress-slider").val(percentComplete);
+
+	    // Current volume
+	    $(".current-volume").html(percentVolume);
+	    $(".volume-slider").val(percentVolume);
 
 	    // Update author and title
 	    $(".meta").css("visibility", "visible");
@@ -62,10 +69,15 @@ UI.prototype.updateUI_ = function(media) {
 
 	    // Update local UI with interval rather than polling receiver
 	    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
-	    	setInterval(function() {
-	    		this.mediaCurrentTime += this.UPDATE_INTERVAL_TIME;
-	    		$(".current-time").html(this.mediaCurrentTime);
+	    	console.log("UI.js: setting update interval");
+	    	this.updateInterval = setInterval(function() {
+	    		this.mediaCurrentTime += this.UPDATE_INTERVAL_TIME / 1000;
+	    		$(".current-time").html(
+	    			this.secondsToTime_(this.mediaCurrentTime));
 	    	}.bind(this), this.UPDATE_INTERVAL_TIME);
+	    } else if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
+	    	$("button.play").show();
+	    	$("button.paused").show();
 	    }
 	}
 }
@@ -122,7 +134,7 @@ UI.prototype.commandPause_ = function(element, trigger) {
 	console.debug("UI.js: commandPause_()");
 
 	// Toggle play / pause
-	$("buttons").attr("disabled", true);
+	$("button").attr("disabled", true);
 	$(element).hide();
 	$("button.play").show();
 
@@ -133,7 +145,7 @@ UI.prototype.commandPause_ = function(element, trigger) {
 }
 
 UI.prototype.commandSeek_ = function(element, trigger) {
-	console.debug("UI.js: commandPause_()");
+	console.debug("UI.js: commandSeek_()");
 	var requestedPercentage = $(element).val();
 	var requestedSeconds =
 			this.mediaTotalTime * (100 / requestedPercentage);
@@ -161,13 +173,13 @@ UI.prototype.commandLoad_ = function(element, trigger) {
 	console.debug("UI.js: commandLoad_()");
 
 	// Disable all elements during load
-	$("buttons").attr("disabled", true);
+	$("button").attr("disabled", true);
 	$("input").attr("disabled", true);
 
     // Broadcast event through DOM
     $(document).trigger({
         type: "media-load-request",
-        id : $("#videoID").html()
+        id : $("#videoID").val()
     });
 }
 
@@ -193,15 +205,15 @@ UI.prototype.commandVolume_ = function(element, trigger) {
 UI.prototype.initResponders_ = function() {
 	console.debug("UI.js: initResponders_()");
 	$(document).on("media-updated", function(e) {
-        this.respondMediaUpdated_(e.data);
+        this.respondMediaUpdated_(e);
     }.bind(this));
 
     $(document).on("media-loaded", function(e) {
-        this.respondMediaLoaded_(e.data);
+        this.respondMediaLoaded_(e);
     }.bind(this));
 
     $(document).on("session-updated", function(e) {
-        this.respondSessionUpdated_(e.data);
+        this.respondSessionUpdated_(e);
     }.bind(this));
 }
 
@@ -217,7 +229,13 @@ UI.prototype.respondMediaLoaded_ = function(data) {
 
 UI.prototype.respondSessionUpdated_ = function(data) {
 	console.debug("UI.js: respondSessionUpdated_()");
-	if(data.isAlive) {
+	if(!data.isAlive) {
+		$("button.load").attr("disabled", true);
 		this.updateUI_(null);
+	} else {
+		$("button.load").removeAttr("disabled");
+		if(data.session.media.length > 0) {
+			this.updateUI_(data.session.media[0]);
+		}
 	}
 }

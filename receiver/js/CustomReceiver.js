@@ -89,6 +89,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 
 		// Broadcast media information
 		var mediaInformation = new cast.receiver.media.MediaInformation();
+		mediaInformation.contentId = event.data.media.contentId;
 		mediaInformation.duration = window.youtubeWrapper.getVideoLength();
 		mediaInformation.metadata = {
 			author : e.data.author,
@@ -150,6 +151,7 @@ CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ =
 	currentStatus.currentTime = window.youtubeWrapper.getVideoProgress();
 	currentStatus.playerState = this.getPlayerState_();
 	currentStatus.volume = volume;
+	console.log(currentStatus);
 	return currentStatus;
 }
 
