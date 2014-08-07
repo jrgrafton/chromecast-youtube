@@ -38,7 +38,7 @@ UI.prototype.updateUI_ = function(media) {
 		$("button.pause").show().attr("disabled", true);
 		$("button.pause, input[type=range]").show().attr("disabled", true);
 	} else {
-		console.log(media.playerState);
+		console.log(media);
 		
 		var currentTimeRaw = media.currentTime;
 	    var totalTimeRaw = media.media.duration;
