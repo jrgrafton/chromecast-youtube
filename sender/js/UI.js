@@ -38,6 +38,8 @@ UI.prototype.updateUI_ = function(media) {
 		$("button.pause").show().attr("disabled", true);
 		$("button.pause, input[type=range]").show().attr("disabled", true);
 	} else {
+		console.log(media.playerState);
+		
 		var currentTimeRaw = media.currentTime;
 	    var totalTimeRaw = media.media.duration;
 	    var currentTime = this.secondsToTime_(currentTimeRaw);
@@ -50,9 +52,11 @@ UI.prototype.updateUI_ = function(media) {
 	    this.mediaTotalTime = parseInt(totalTimeRaw);
 	    
 	    // Current timing
-	    $(".current-time").html(currentTime);
-	    $(".total-time").html(totalTime);
-	    $(".progress-slider").val(percentComplete);
+	    if(!isNaN(percentComplete)) {
+		    $(".current-time").html(currentTime);
+		    $(".total-time").html(totalTime);
+		    $(".progress-slider").val(percentComplete);
+		}
 
 	    // Current volume
 	    $(".current-volume").html(percentVolume);
@@ -68,6 +72,7 @@ UI.prototype.updateUI_ = function(media) {
 	    // Enable all elements
 	    $("button").removeAttr("disabled");
 	    $("input").removeAttr("disabled");
+
 	    // Update local UI with interval rather than polling receiver
 	    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
 	    	console.log("UI.js: setting update interval");
@@ -147,6 +152,8 @@ UI.prototype.commandPause_ = function(element, trigger) {
 
 UI.prototype.commandSeek_ = function(element, trigger) {
 	console.debug("UI.js: commandSeek_()");
+	clearInterval(this.updateInterval);
+
 	var requestedPercentage = $(element).val();
 	var requestedSeconds = this.mediaTotalTime * (requestedPercentage / 100);
 	$(".current-time").html(this.secondsToTime_(requestedSeconds));
@@ -230,13 +237,11 @@ UI.prototype.respondMediaLoaded_ = function(data) {
 
 UI.prototype.respondSessionUpdated_ = function(data) {
 	console.debug("UI.js: respondSessionUpdated_()");
+
+	$("button.load").removeAttr("disabled");
 	if(!data.isAlive) {
-		$("button.load").attr("disabled", true);
 		this.updateUI_(null);
-	} else {
-		$("button.load").removeAttr("disabled");
-		if(data.session.media.length > 0) {
-			this.updateUI_(data.session.media[0]);
-		}
+	} else if(data.session.media.length > 0) {
+		this.updateUI_(data.session.media[0]);
 	}
 }
