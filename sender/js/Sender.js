@@ -7,6 +7,18 @@
     this.ccInitAPI_();
 };
 
+/**********************/
+/** Public functions **/
+/**********************/
+Sender.prototype.ccGetVolume = function() {
+    if(!this.session_) {
+        return 0;
+    } else {
+        return this.session_.receiver.volume.level;
+    }
+}
+
+
 /***************************/
 /** Sender initialisation **/
 /***************************/
@@ -139,7 +151,6 @@ Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
     });
 }
 
-
 /**********************/
 /** Event responders **/
 /**********************/
@@ -270,13 +281,9 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    var request = new chrome.cast.media.VolumeRequest();
-    request.volume = new chrome.cast.Volume(data.volume);
-    this.session_.media[0].setVolume(request,
+    this.session_.setReceiverVolumeLevel(data.volume,
         function() {
             console.log("Volume request completed successfully");
-            this.session_.setReceiverVolumeLevel(data.volume,
-                function(){}, function(){})
         }.bind(this),
         function(e) {
             console.log("Volume request failed");

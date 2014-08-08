@@ -45,7 +45,7 @@ UI.prototype.updateUI_ = function(media) {
 	    var currentTime = this.secondsToTime_(currentTimeRaw);
 	    var totalTime = this.secondsToTime_(totalTimeRaw);
 	    var percentComplete = (100 / totalTimeRaw) * currentTimeRaw;
-	    var percentVolume = media.volume.level * 100;
+	    var percentVolume = Math.round(window.sender.ccGetVolume() * 100);
 
 	    // Save current timing for use by other functions
 	    this.mediaCurrentTime = parseInt(currentTimeRaw);
