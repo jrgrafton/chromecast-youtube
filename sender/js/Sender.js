@@ -1,5 +1,6 @@
  function Sender() {
     this.applicationID_ = "917A9D6E";
+    this.apiConfig_ = null;
     this.session_ = null;
 
     // Setup functions
@@ -27,30 +28,22 @@ Sender.prototype.ccInitAPI_ = function() {
 
     // Create API config with session listeners
     var sessionRequest = new chrome.cast.SessionRequest(this.applicationID_);
-    var apiConfig = new chrome.cast.ApiConfig(sessionRequest, 
+    this.apiConfig_ = new chrome.cast.ApiConfig(sessionRequest, 
         this.ccSessionCreatedListener_.bind(this),
         this.ccReceiversUpdatedListener_.bind(this)
     );
 
-
-    this.ccConnectToDevice_(apiConfig);
+    this.ccConnectToDevice_();
 }
 
-Sender.prototype.ccConnectToDevice_ = function(apiConfig) {
+Sender.prototype.ccConnectToDevice_ = function() {
     // Initialise Chromecast
-    chrome.cast.initialize(apiConfig, this.ccDidConnect_.bind(this),
+    chrome.cast.initialize(this.apiConfig_, this.ccDidConnect_.bind(this),
         this.ccDidFailConnect_.bind(this));
 }
 
 Sender.prototype.ccDidConnect_ = function() {
     console.debug("Sender.js: ccDidConnect_()");
-
-    // Wait two seconds to allow existing session to be resumed
-    setTimeout(function() {
-        if(this.session_ === null) {
-            this.ccCreateSession_();
-        }
-    }.bind(this), 2000);
 }
 
 Sender.prototype.ccDidFailConnect_ = function(e) {
@@ -156,6 +149,9 @@ Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
 /**********************/
 Sender.prototype.initResponders_ = function() {
     console.debug("Sender.js: initResponders_()");
+    $(document).on("receiver-connect-request", function(e) {
+        this.ccCreateSession_();
+    }.bind(this));
 
     $(document).on("media-load-request", function(e) {
         if(!this.session_) return;

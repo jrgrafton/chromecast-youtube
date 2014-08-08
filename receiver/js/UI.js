@@ -38,7 +38,7 @@ UI.prototype.switchToState = function(state) {
 	}
 
 	// Start timeout for pause
-	if(state === "pause") {
+	if(state === "video-paused") {
 		this.pauseStopTimeoutFunction = setTimeout(function() {
 			window.customReceiver.shutdownReceiver();
 		}.bind(this), this.PAUSE_STOP_TIMEOUT);

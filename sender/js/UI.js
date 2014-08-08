@@ -38,8 +38,6 @@ UI.prototype.updateUI_ = function(media) {
 		$("button.pause").show().attr("disabled", true);
 		$("button.pause, input[type=range]").show().attr("disabled", true);
 	} else {
-		console.log(media);
-		
 		var currentTimeRaw = media.currentTime;
 	    var totalTimeRaw = media.media.duration;
 	    var currentTime = this.secondsToTime_(currentTimeRaw);
@@ -72,6 +70,7 @@ UI.prototype.updateUI_ = function(media) {
 	    // Enable all elements
 	    $("button").removeAttr("disabled");
 	    $("input").removeAttr("disabled");
+	    $("button.connect").attr("disabled", true);
 
 	    // Update local UI with interval rather than polling receiver
 	    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
@@ -183,6 +182,8 @@ UI.prototype.commandLoad_ = function(element, trigger) {
 	// Disable all elements during load
 	$("button").attr("disabled", true);
 	$("input").attr("disabled", true);
+	$(".meta .author").html("loading...");
+	$(".meta .title").html("");
 
     // Broadcast event through DOM
     $(document).trigger({
@@ -205,6 +206,17 @@ UI.prototype.commandVolume_ = function(element, trigger) {
 	        volume: 0.01 * requestedPercentage
 	    });
 	}
+}
+
+UI.prototype.commandConnect_ = function(element, trigger) {
+	console.debug("UI.js: commandConnect_()");
+	// Disable all elements during load
+	$(element).attr("disabled", true);
+
+    // Broadcast event through DOM
+    $(document).trigger({
+        type: "receiver-connect-request"
+    });
 }
 
 /**********************/
@@ -237,11 +249,16 @@ UI.prototype.respondMediaLoaded_ = function(data) {
 
 UI.prototype.respondSessionUpdated_ = function(data) {
 	console.debug("UI.js: respondSessionUpdated_()");
+	console.log(data);
 
-	$("button.load").removeAttr("disabled");
 	if(!data.isAlive) {
+		$("button.connect").removeAttr("disabled", true);
 		this.updateUI_(null);
-	} else if(data.session.media.length > 0) {
+	} else {
+		$("button.connect").attr("disabled", true);
+		$("button.load").removeAttr("disabled");
+	}
+	if(data.session.media.length > 0) {
 		this.updateUI_(data.session.media[0]);
 	}
 }
