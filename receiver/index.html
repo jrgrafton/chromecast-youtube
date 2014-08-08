@@ -25,37 +25,24 @@
   				</h3>
           <div class="youtube-logo">
             <img src="img/youtube-logo.png">
-            <h4>Ready to Cast</h4>
+            <h5>Ready to Cast</h5>
           </div>
   			</div>
       </div>
   	</div>
   	<div class="screen screen-video">
+      <!-- Media element used for playback of non YT videos -->
+      <video id="media"></video>
+
+      <!-- Will be replaced by Youtube iFrame API -->
   		<div id="ytplayer" type="text/html"  frameborder="0" allowfullscreen></div>
+
+      <!-- Receiver UI -->
       <div class="ui">
         <div class="state-icon-container">
           <div class="state-icon">
             <div class="pause-icon"></div>
-            <div class="spinner">
-              <div class="spinner-container container1">
-                <div class="circle1"></div>
-                <div class="circle2"></div>
-                <div class="circle3"></div>
-                <div class="circle4"></div>
-              </div>
-              <div class="spinner-container container2">
-                <div class="circle1"></div>
-                <div class="circle2"></div>
-                <div class="circle3"></div>
-                <div class="circle4"></div>
-              </div>
-              <div class="spinner-container container3">
-                <div class="circle1"></div>
-                <div class="circle2"></div>
-                <div class="circle3"></div>
-                <div class="circle4"></div>
-              </div>
-              </div>
+            <div class="spinner"></div>
           </div>
         </div>
 
@@ -79,8 +66,6 @@
       </div>
   	</div>
 
-  	<!-- https://www.youtube.com/embed/M7lc1UVf-VE?autoplay=1&controls=0&modestbranding=1&enablejsapi=1&showinfo=0&rel=0-->
-
   	<!-- Load JS JIT after DOM -->
   	<script src="js/UI.js"></script>
   	<script src="js/YoutubeWrapper.js"></script>
@@ -94,5 +79,9 @@
 
     <!-- Youtube iframe API -->
     <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Receiver libs -->
+    <script src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
+    <script src="js/libraries/Player.js"></script>
   </body>
 </html>

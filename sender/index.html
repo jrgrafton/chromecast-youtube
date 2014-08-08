@@ -1,0 +1,75 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Chromecast - embedded Youtube sender</title>
+        <meta name="description" content="Chromecast embedded Youtube sender">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Styles -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/application.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <br><br>
+                    <h1>Casting Kittens</h1>
+                    <h4>Embedded Youtube sender</h4>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6 text-center">
+                    <button class="connect btn btn-success" data-commands='[{"name":"connect","trigger":"mouseup"}]'>Connect</button>
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <form class="form-inline controls" role="form">
+                        <div class="form-group">
+                            <label class="sr-only" for="videoID">VideoID</label>
+                            <input type="text" class="form-control" id="videoID" placeholder="Enter Youtube videoID" value="i_mKY2CQ9Kk">
+                        </div>
+                        
+                        <button type="button" class="load btn btn-default" data-commands='[{"name":"load","trigger":"mouseup"}]' disabled=true>Load</button>
+                        <button type="button" class="pause btn btn-default" data-commands='[{"name":"pause","trigger":"mouseup"}]' disabled=true>Pause</button>
+                        <button type="button" class="play btn btn-default" data-commands='[{"name":"play","trigger":"mouseup"}]'>Play</button>
+                        <button type="button" class="stop btn btn-default btn-danger" data-commands='[{"name":"stop","trigger":"mouseup"}]' disabled=true>Stop</button>
+
+                        <span class="current-time">--:--</span>
+                        <input type="range" class="progress-slider" min="0" max="100" step="0.1" value="0" data-commands='[{"name": "seek", "trigger": "change"}, {"name": "seek", "trigger": "input"}]' disabled=true>
+                        <span class="total-time">--:--</span>
+
+                        <input type="range" class="volume-slider" min="0" max="100" step="1" value="0" data-commands='[{"name": "volume", "trigger": "change"}, {"name": "volume", "trigger": "input"}]' disabled=true>
+                        <small class="current-volume"><span>0</span></small>
+                    </form>
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <h5 class="meta">
+                        <span class="author">Loading...</span>
+                        <i><span class="title"></span></i>
+                    </h5>
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+        </div>
+
+        <!-- JS -->
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="//www.gstatic.com/cv/js/sender/v1/cast_sender.js"></script>
+        <script type="text/javascript" src="js/Sender.js"></script>
+        <script type="text/javascript" src="js/UI.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+    </body>
+</html>

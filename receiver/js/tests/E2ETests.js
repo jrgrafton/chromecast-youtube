@@ -1,12 +1,12 @@
 function E2ETests() {
-	this.testVideos_ = ["i_mKY2CQ9Kk", "C_S5cXbXe-4", "GsxBxvjXj2M",
+	this.testVideos_ = ["i_mKY2CQ9Kk", "mmf0KAHWlnk", "C_S5cXbXe-4", "rUL0M__g1k4",
 		"z3U0udLH974", "tntOCGkgt98"];
 	this.tests = [];
 	this.discoverTests_();
 
 	// Psuedo static vars
-	this.TEST_START_DELAY = 1000 * 3;
-	this.NEXT_TEST_DELAY = 10000;
+	this.TEST_START_DELAY = 1000;
+	this.NEXT_TEST_DELAY = 1000 * 10;
 }
 
 E2ETests.prototype.discoverTests_ = function() {
@@ -34,7 +34,7 @@ E2ETests.prototype.runNextTest_ = function() {
 							this.runNextTest_();
 						}.bind(this), this.NEXT_TEST_DELAY);
 					} else {
-						alert("tests complete");
+						//alert("tests complete");
 					}
 				}.bind(this));
 			}.bind(this));
@@ -49,11 +49,13 @@ E2ETests.prototype.setup_ = function(callback) {
 	window.youtubeWrapper.stopVideo();
 	var playListener = function(e) {
 		document.removeEventListener("video-playing", playListener);
+		window.youtubeWrapper.setVolume(0); // Mute those cats!!
 		callback();
 	}.bind(this);
 
 	document.addEventListener("video-playing", playListener);
-	window.youtubeWrapper.loadVideo(this.testVideos_.shift(), function() {});
+	window.youtubeWrapper.loadVideo(this.testVideos_.shift(),
+		0, function() {});
 }
 
 E2ETests.prototype.testResumeVideo_ = function(callback) {
@@ -65,13 +67,31 @@ E2ETests.prototype.testResumeVideo_ = function(callback) {
 	var pauseListener = function(e) {
 		document.removeEventListener("video-paused", pauseListener);
 		setTimeout(function() {
-			window.youtubeWrapper.playVideo();
 			document.addEventListener("video-playing", playListener);
+			window.youtubeWrapper.playVideo();
 		}, 2000);
 	}.bind(this);
 
 	document.addEventListener("video-paused", pauseListener);
-	window.youtubeWrapper.pauseVideo();
+
+	setTimeout(function() {
+		// To give video extra time to load on Chromecast
+		window.youtubeWrapper.pauseVideo();
+	}, 2000);
+}
+
+E2ETests.prototype.testChangeVolume_ = function(callback) {
+	var targetVolume = 90;
+	window.youtubeWrapper.setVolume(targetVolume);
+
+	// No event for volume change so just wait for a few seconds
+	setTimeout(function() {
+		var volume = window.youtubeWrapper.getVolume();
+		if(volume !== targetVolume) {
+			throw "Expected: volume to be " + targetVolume;
+		}
+		callback();
+	}, 5000);
 }
 
 E2ETests.prototype.testPausingVideo_ = function(callback) {
@@ -82,7 +102,12 @@ E2ETests.prototype.testPausingVideo_ = function(callback) {
 	}.bind(this);
 
 	document.addEventListener("video-paused", pauseListener);
-	window.youtubeWrapper.pauseVideo();
+
+	setTimeout(function() {
+		// To give video extra time to load on Chromecast
+		window.youtubeWrapper.pauseVideo();
+	}, 2000);
+	
 }
 
 
@@ -104,9 +129,17 @@ E2ETests.prototype.testStopVideo_ = function(callback) {
 		this.verifyState("unstarted");
 		callback();
 	}.bind(this);
+	setTimeout(function() {
+		window.youtubeWrapper.stopVideo();
+		document.addEventListener("video-unstarted", unstartedListener);
+	}, 5000)
+}
 
-	window.youtubeWrapper.stopVideo();
-	document.addEventListener("video-unstarted", unstartedListener);
+E2ETests.prototype.verifyState = function(expectedState) {
+	var playerState = window.youtubeWrapper.getState();
+	if(playerState !== expectedState) {
+		throw "Expected: video to be in " + expectedState + " state"
+	}
 }
 
 E2ETests.prototype.testFinishingVideo_ = function(callback) {
@@ -119,13 +152,6 @@ E2ETests.prototype.testFinishingVideo_ = function(callback) {
 	}.bind(this);
 	document.addEventListener("video-ended", endedListener);
 
-	var movieLength = window.youtubeWrapper.getVideoLength() - 1;
+	var movieLength = window.youtubeWrapper.getVideoLength() - 10;
 	window.youtubeWrapper.seekVideo(movieLength);
-}
-
-E2ETests.prototype.verifyState = function(expectedState) {
-	var playerState = window.youtubeWrapper.getState();
-	if(playerState !== expectedState) {
-		throw "Expected: video to be in " + expectedState + " state"
-	}
 }

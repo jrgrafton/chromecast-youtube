@@ -5,7 +5,8 @@ function YoutubeWrapper(iframeElement) {
 	this.iframeElement = iframeElement;
 	this.playerEmbedURL = "https://www.youtube.com/embed/";
 	this.playerDefaultParams = {
-		'autoplay': "1", 
+		'autoplay': "1",
+		'autohide': "1", 
 		'controls': "0",
 		'modestbranding': "1",
 		'enablejsapi': "1",
@@ -18,11 +19,15 @@ function YoutubeWrapper(iframeElement) {
 	this.UPDATE_PROGRESS_EVENT_INTERVAL = 500;
 }
 
-YoutubeWrapper.prototype.loadVideo = function(id, callback) {
+YoutubeWrapper.prototype.loadVideo = function(id, startTime, callback) {
 	console.debug("YoutubeWrapper.js: loadVideo(" + id + ")");
 	document.dispatchEvent(new Event("video-loading"));
 
-	if(this.ytPlayer === null) {
+	if(this.ytPlayer == null) {
+		// Set start time
+		this.playerDefaultParams.start = startTime;
+
+		// Create YT player
 		this.ytPlayer = new YT.Player('ytplayer', {
 			videoId: id,
 			playerVars: this.playerDefaultParams,
@@ -41,7 +46,7 @@ YoutubeWrapper.prototype.loadVideo = function(id, callback) {
 
 		});
 	} else {
-		this.ytPlayer.loadVideoById(id, 0, "default");
+		this.ytPlayer.loadVideoById(id, startTime, "default");
 		callback();
 	}
 }
@@ -53,18 +58,30 @@ YoutubeWrapper.prototype.pauseVideo = function() {
 
 YoutubeWrapper.prototype.playVideo = function() {
 	console.debug("YoutubeWrapper.js: playVideo()");
-	this.ytPlayer.playVideo();
+	if(this.ytPlayer) {
+		this.ytPlayer.playVideo();
+	}
 }
 
 YoutubeWrapper.prototype.stopVideo = function() {
 	console.debug("YoutubeWrapper.js: stopVideo()");
-	document.dispatchEvent(new Event("video-stopped"));
-	if(this.ytPlayer !== null) this.ytPlayer.stopVideo();
 	clearInterval(this.updateProgressEvent);
+	document.dispatchEvent(new Event("video-stopped"));
+	if(this.ytPlayer !== null) {
+		this.ytPlayer.stopVideo();
+		this.ytPlayer.clearVideo();
+	}
 }
 
 YoutubeWrapper.prototype.seekVideo = function(seconds) {
 	console.debug("YoutubeWrapper.js: seekTo(" + seconds + ")");
+
+	// Immediately update UI since event can take a while to propogate
+	clearInterval(this.updateProgressEvent);
+	window.ui.updateVideoProgress_({
+		videoLength: this.getVideoLength(),
+		videoProgress: seconds
+	});
 	this.ytPlayer.seekTo(seconds, true);
 }
 
@@ -81,6 +98,21 @@ YoutubeWrapper.prototype.getVideoLength = function() {
 YoutubeWrapper.prototype.getVideoProgress = function() {
 	console.debug("YoutubeWrapper.js: getVideoProgress()");
 	return this.ytPlayer.getCurrentTime();
+}
+
+YoutubeWrapper.prototype.setVolume = function(volume) {
+	console.debug("YoutubeWrapper.js: setVolume(" + volume + ")");
+	return this.ytPlayer.setVolume(volume);
+}
+
+YoutubeWrapper.prototype.getVolume = function() {
+	console.debug("YoutubeWrapper.js: getVolume()");
+	return this.ytPlayer.getVolume();
+}
+
+YoutubeWrapper.prototype.getMetaData = function() {
+	console.debug("YoutubeWrapper.js: getMetaData()");
+	return this.ytPlayer.getVideoData();;
 }
 
 YoutubeWrapper.prototype.getStateText_ = function() {

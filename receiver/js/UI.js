@@ -1,12 +1,16 @@
 function UI(rootNode) {
 	this.rootNode = rootNode;
-	this.pauseIdleTimeoutFunction = null;
 	this.switchToPlayingTimeoutFunction = null;
+
+	this.idleStopTimeoutFunction = null;
+	this.pauseStopTimeoutFunction = null;
 
 	// Psuedo static vars
 	this.STATES = ["idle", "video-loading", "video-info", "video-playing",
 		"video-paused", "video-buffering"];
-	this.PAUSE_IDLE_TIMEOUT = 1000 * 60 * 5; // Five minutes before idle state
+
+	this.IDLE_STOP_TIMEOUT = 1000 * 60 * 5; // Five minutes: idle --> stop()
+	this.PAUSE_STOP_TIMEOUT = 1000 * 60 * 30; // Thirty minutes: paused --> stop()
 	this.INFO_TIMEOUT = 1000 * 5; // Show info for five seconds after playing
 
 	this.subscribeToEvents_();
@@ -20,6 +24,24 @@ UI.prototype.switchToState = function(state) {
 			this.rootNode.classList.remove(currentClasses[i]);
 		}
 		this.rootNode.classList.add(state);
+	}
+
+	// Clear previous timeouts
+	clearTimeout(this.pauseStopTimeoutFunction);
+	clearTimeout(this.idleStopTimeoutFunction);
+
+	// Start timeout for idle
+	if(state === "idle") {
+		this.idleStopTimeoutFunction = setTimeout(function() {
+			window.customReceiver.shutdownReceiver();
+		}.bind(this), this.IDLE_STOP_TIMEOUT);
+	}
+
+	// Start timeout for pause
+	if(state === "video-paused") {
+		this.pauseStopTimeoutFunction = setTimeout(function() {
+			window.customReceiver.shutdownReceiver();
+		}.bind(this), this.PAUSE_STOP_TIMEOUT);
 	}
 }
 
@@ -47,13 +69,13 @@ UI.prototype.subscribeToEvents_ = function() {
 	}.bind(this));
 
 	document.addEventListener("video-stopped", function() {
-		clearTimeout(this.pauseIdleTimeoutFunction);
+		clearTimeout(this.pauseStopTimeoutFunction);
 		clearTimeout(this.switchToPlayingTimeoutFunction);
 		this.switchToState("idle");
 	}.bind(this));
 
 	document.addEventListener("video-ended", function() {
-		clearTimeout(this.pauseIdleTimeoutFunction);
+		clearTimeout(this.pauseStopTimeoutFunction);
 		clearTimeout(this.switchToPlayingTimeoutFunction);
 		this.switchToState("idle");
 	}.bind(this));
@@ -64,7 +86,6 @@ UI.prototype.subscribeToEvents_ = function() {
 }
 
 UI.prototype.eventVideoLoading_ = function() {
-	clearTimeout(this.pauseIdleTimeoutFunction);
 	this.switchToState("video-loading");
 }
 
@@ -115,7 +136,6 @@ UI.prototype.updateVideoProgress_ = function(data) {
 }
 
 UI.prototype.eventVideoPlaying_ = function() {
-	clearTimeout(this.pauseIdleTimeoutFunction);
 	clearTimeout(this.switchToPlayingTimeoutFunction);
 
 	// Trigger video info for five seconds
@@ -126,15 +146,9 @@ UI.prototype.eventVideoPlaying_ = function() {
 }
 
 UI.prototype.eventVideoPause_ = function() {
-	clearTimeout(this.pauseIdleTimeoutFunction);
 	clearTimeout(this.switchToPlayingTimeoutFunction);
 
 	this.switchToState("video-paused");
-	this.pauseIdleTimeoutFunction = setTimeout(function() {
-		// Reset playing video and go into idle state
-		window.youtubeWrapper.resetVideo();
-		this.switchToState("idle");
-	}.bind(this), this.PAUSE_IDLE_TIMEOUT);
 }
 
 UI.prototype.eventVideoBuffering_ = function() {
