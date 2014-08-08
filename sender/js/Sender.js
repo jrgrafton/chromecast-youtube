@@ -182,6 +182,11 @@ Sender.prototype.initResponders_ = function() {
         if(!this.session_ || this.session_.media.length === 0) return;
         this.respondMediaVolumeRequest_(e);
     }.bind(this));
+
+    $(document).on("media-status-request", function(e) {
+        if(!this.session_ || this.session_.media.length === 0) return;
+        this.respondMediaStatusRequest_(e);
+    }.bind(this));
 }
 
 
@@ -283,6 +288,23 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
         }.bind(this),
         function(e) {
             console.log("Volume request failed");
+            console.error(e);
+        }
+    )
+}
+
+Sender.prototype.respondMediaStatusRequest_ = function(data) {
+    console.debug("Sender.js: respondMediaVolumeRequest_()");
+
+    // Media update listener will dispatch 
+    // state change back to requesting entity
+    var request = chrome.cast.media.GetStatusRequest();
+    this.session_.media[0].getStatus(request,
+        function(media) {
+            console.log("Status request completed successfully");
+        }.bind(this),
+        function(e) {
+            console.log("Status request failed");
             console.error(e);
         }
     )

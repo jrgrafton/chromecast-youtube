@@ -1,5 +1,5 @@
  function UI() {
-	this.UPDATE_INTERVAL_TIME = 500; // How often to update current time when media is playing
+	this.UPDATE_INTERVAL_TIME = 1000; // How often to update current time when media is playing
 	this.updateInterval = null;
 	this.mediaCurrentTime = 0;
 	this.mediaTotalTime = 0;
@@ -76,9 +76,11 @@ UI.prototype.updateUI_ = function(media) {
 	    if(media.playerState === chrome.cast.media.PlayerState.PLAYING) {
 	    	console.log("UI.js: setting update interval");
 	    	this.updateInterval = setInterval(function() {
-	    		this.mediaCurrentTime += this.UPDATE_INTERVAL_TIME / 1000;
-	    		$(".current-time").html(
-	    			this.secondsToTime_(this.mediaCurrentTime));
+	    		// Tried doing this with local times yet they would always
+	    		// get out of sync
+	    		$(document).trigger({
+	        		type: "media-status-request"
+	    		});
 	    	}.bind(this), this.UPDATE_INTERVAL_TIME);
 	    } else if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
 	    	$("button.play").show();
@@ -224,6 +226,7 @@ UI.prototype.commandConnect_ = function(element, trigger) {
 /**********************/
 UI.prototype.initResponders_ = function() {
 	console.debug("UI.js: initResponders_()");
+
 	$(document).on("media-updated", function(e) {
         this.respondMediaUpdated_(e);
     }.bind(this));
