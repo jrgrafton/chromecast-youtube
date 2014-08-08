@@ -52,18 +52,6 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 		console.debug("CustomReceiver.js: broadcast video-unstarted");
 		this.mediaManager_.broadcastStatus(true);
 	}.bind(this));
-
-	// Testing multiple media managers
-	this.mediaManagerMediaElement_ = 
-		new cast.receiver.MediaManager(document.getElementById("media"));
-
-	this.mediaManagerMediaElement_.customizedStatusCallback = function() {console.log("customizedStatusCallback()")}
-	this.mediaManagerMediaElement_.onLoad = function(e) {console.log("onLoad()")}
-	this.mediaManagerMediaElement_.onPause = function(e) {console.log("onPause()")}
-	this.mediaManagerMediaElement_.onPlay = function(e) {console.log("onPlay()")}
-	this.mediaManagerMediaElement_.onStop = function(e) {console.log("onStop()")}
-	this.mediaManagerMediaElement_.onSeek = function(e) {console.log("onSeek()")}
-	this.mediaManagerMediaElement_.onSetVolume = function(e) {console.log("onSetVolume()")}
 }
 
 CustomReceiver.prototype.hijackMediaEvents_ = function() {
@@ -91,10 +79,9 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 CustomReceiver.prototype.initialiseSessionManagement_ = function() {
 	console.debug("CustomReceiver.js: initialiseSessionManagement_()");
 	this.castReceiverManager_.onSenderDisconnected = function(event) {
-	  	if(this.castReceiverManager_.getSenders().length == 0 &&
-	    	event.reason == 
-	    	cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
-	      window.close();
+	  	if(this.castReceiverManager_.getSenders().length == 0 && event.reason == 
+	  		cast.receiver.system.DisconnectReason.REQUESTED_BY_SENDER) {
+	      	window.close();
 	  	}
 	}.bind(this)
 }
