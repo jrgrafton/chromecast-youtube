@@ -126,7 +126,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.mediaManager_['mediaOrigOnLoad'](event);
 	}.bind(this);
 
-	if(event.data.media.contentId.indexOf("mp4") !== null) {
+	if(event.data.media.contentId.indexOf("mp4") !== -1) {
 		// Setup CDN video compatible MediaManager
 		this.currentMediaType_ = this.mediaTypes_.STANDARD;
 		this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
