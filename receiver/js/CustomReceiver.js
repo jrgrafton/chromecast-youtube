@@ -131,9 +131,10 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.currentMediaType_ = this.mediaTypes_.STANDARD;
 		this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
 		this.hijackMediaEvents_();
-		
+
 		window.youtubeWrapper.stopVideo();
 		this.mediaManager_['mediaOrigOnLoad'](event);
+		this.mediaManager_['mediaOrigOnPlay'](event);
 		document.dispatchEvent(new Event("video-playing"));
 	} else {
 		// Setup Youtube compatible MediaManager
