@@ -3,13 +3,18 @@ function CustomReceiver() {
 	this.mediaElement_ = null;
 	this.mediaManager_ = null;
 	this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();
+	this.mediaTypes_ = { 
+		STANDARD : 0,
+		YOUTUBE : 1
+	};
+	this.currentMediaType_ = null;
+	this.player_ = null; // Interface to MediaManager used by YT player
 
 	// Events that need to be hijacked for Youtube playback
 	this.mediaOrigOnLoad_ = null;
 	this.mediaOrigOnPause_ = null;
 	this.mediaOrigOnPlay_ = null;
 	this.mediaOrigOnStop_ = null;
-
 	this.mediaOrigOnSeek_ = null;
 	this.mediaOnSetVolume_ = null;
 	this.mediaOrigOnGetStatus_ = null;
@@ -28,16 +33,19 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	this.mediaElement_ = document.getElementById('media');
 	
 	// Custom player to allow YT state to be propogated
-	var player = new cast.receiver.media.Player();
-	player.getPlayerState = function() {
+	this.player_ = new cast.receiver.media.Player();
+	this.player_.getPlayerState = function() {
 		console.debug("CustomReceiver.js: getPlayerState()");
 		return this.getPlayerState_();
 	}.bind(this);
-	player.getPlayerCurrentTimeSec = function() {
+	this.player_.getPlayerCurrentTimeSec = function() {
 		console.debug("CustomReceiver.js: getPlayerCurrentTimeSec()");
 		return this.getPlayerCurrentTimeSec();
 	}
-	this.mediaManager_ = new cast.receiver.MediaManager(player);
+	this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
+
+	// Default video type to be Youtube
+	this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
 
 	// Broadcast any Youtube state changes
 	document.addEventListener("video-ended", function() {
@@ -118,9 +126,21 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.mediaManager_['mediaOrigOnLoad'](event);
 	}.bind(this);
 
-	document.addEventListener("video-playing", playListener);
-	window.youtubeWrapper.loadVideo(event.data.media.contentId, 
-		event.data.currentTime, function() {});
+	if(event.data.media.contentId.indexOf("mp4") !== null) {
+		// Setup CDN video compatible MediaManager
+		this.currentMediaType_ = this.mediaTypes_.STANDARD;
+		this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+		this.mediaManager_['mediaOrigOnLoad'](event);
+		document.dispatchEvent(new Event("video-playing"));
+	} else {
+		// Setup Youtube compatible MediaManager
+		this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
+		this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
+
+		document.addEventListener("video-playing", playListener);
+		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
+			event.data.currentTime, function() {});
+	}
 }
 
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
