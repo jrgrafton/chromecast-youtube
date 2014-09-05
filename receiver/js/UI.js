@@ -56,7 +56,9 @@ UI.prototype.subscribeToEvents_ = function() {
 	}.bind(this));
 
 	document.addEventListener("video-playing", function(e) {
-		this.updateVideoMeta_(e.data);
+		if(e.data != null) {
+			this.updateVideoMeta_(e.data);
+		}
 		this.eventVideoPlaying_();
 	}.bind(this));
 
