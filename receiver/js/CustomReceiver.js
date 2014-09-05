@@ -131,6 +131,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.currentMediaType_ = this.mediaTypes_.STANDARD;
 		this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
 		this.hijackMediaEvents_();
+		
+		window.youtubeWrapper.stopVideo();
 		this.mediaManager_['mediaOrigOnLoad'](event);
 		document.dispatchEvent(new Event("video-playing"));
 	} else {
