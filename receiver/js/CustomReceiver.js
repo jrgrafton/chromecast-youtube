@@ -138,7 +138,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
 		this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
 		this.hijackMediaEvents_();
-		
+
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
@@ -148,77 +148,101 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 
-	var pauseListener = function(e) {
-		document.removeEventListener("video-paused", pauseListener);
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		this.mediaManager_['mediaOrigOnPause'](event);
-	}.bind(this);
+	} else {
+		var pauseListener = function(e) {
+			document.removeEventListener("video-paused", pauseListener);
+			this.mediaManager_['mediaOrigOnPause'](event);
+		}.bind(this);
 
-	document.addEventListener("video-paused", pauseListener);
-	window.youtubeWrapper.pauseVideo();
+		document.addEventListener("video-paused", pauseListener);
+		window.youtubeWrapper.pauseVideo();
+	}
 }
 
 CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
 
-	var playListener = function(e) {
-		document.removeEventListener("video-playing", playListener);
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		this.mediaManager_['mediaOrigOnPlay'](event);
-	}.bind(this);
+	} else {
+		var playListener = function(e) {
+			document.removeEventListener("video-playing", playListener);
+			this.mediaManager_['mediaOrigOnPlay'](event);
+		}.bind(this);
 
-	document.addEventListener("video-playing", playListener);
-	window.youtubeWrapper.playVideo();
+		document.addEventListener("video-playing", playListener);
+		window.youtubeWrapper.playVideo();
+	}
 }
 
 CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
 	
-	var unstartedListener = function() {
-		document.removeEventListener("video-unstarted", unstartedListener);
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		this.mediaManager_['mediaOrigOnStop'](event);
-	}.bind(this);
+	} else {
+		var unstartedListener = function() {
+			document.removeEventListener("video-unstarted", unstartedListener);
+			this.mediaManager_['mediaOrigOnStop'](event);
+		}.bind(this);
 
-	document.addEventListener("video-unstarted", unstartedListener);
-	window.youtubeWrapper.stopVideo();
+		document.addEventListener("video-unstarted", unstartedListener);
+		window.youtubeWrapper.stopVideo();
+	}
 }
 
 CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSeekEvent_()");
 
-	var seekSeconds = event.data.currentTime;
-	var playListener = function(e) {
-		document.removeEventListener("video-playing", playListener);
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		this.mediaManager_['mediaOrigOnSeek'](event);
-	}.bind(this);
+	} else {
+		var seekSeconds = event.data.currentTime;
+		var playListener = function(e) {
+			document.removeEventListener("video-playing", playListener);
+			this.mediaManager_['mediaOrigOnSeek'](event);
+		}.bind(this);
 
-	// Attach playing event listener incase video never buffers
-	document.addEventListener("video-playing", playListener);
-	window.youtubeWrapper.seekVideo(seekSeconds);
+		// Attach playing event listener incase video never buffers
+		document.addEventListener("video-playing", playListener);
+		window.youtubeWrapper.seekVideo(seekSeconds);
+	}
 }
 
 CustomReceiver.prototype.mediaOnSetVolumeEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSetVolumeEvent_()");
 	
-	// No Youtube event for volume changed - set arbitrary timeout :/
-	window.youtubeWrapper.setVolume(parseInt(event.data.volume.level * 100));
-	setTimeout(function() {
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		this.mediaManager_['mediaOrigOnSetVolume'](event);
-	}.bind(this), 100);
+	} else {
+		// No Youtube event for volume changed - set arbitrary timeout :/
+		window.youtubeWrapper.setVolume(parseInt(event.data.volume.level * 100));
+		setTimeout(function() {
+			this.mediaManager_['mediaOrigOnSetVolume'](event);
+		}.bind(this), 100);
+	}
 }
 
 CustomReceiver.prototype.mediaCustomizedStatusCallbackEvent_ = 
 	function(currentStatus) {
 	console.debug("CustomReceiver.js: mediaCustomizedStatusCallbackEvent_()");
 
-	// Get YTPlayerVolume
-	var volume = new cast.receiver.media.Volume();
-	volume.level = window.youtubeWrapper.getVolume() / 100;
-	volume.muted = (volume.level === 0);
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
+		return currentStatus;
+	} else {
+		// Get YTPlayerVolume
+		var volume = new cast.receiver.media.Volume();
+		volume.level = window.youtubeWrapper.getVolume() / 100;
+		volume.muted = (volume.level === 0);
 
-	currentStatus.currentTime = window.youtubeWrapper.getVideoProgress();
-	currentStatus.playerState = this.getPlayerState_();
-	currentStatus.volume = volume;
-	console.log(currentStatus);
-	return currentStatus;
+		currentStatus.currentTime = window.youtubeWrapper.getVideoProgress();
+		currentStatus.playerState = this.getPlayerState_();
+		currentStatus.volume = volume;
+		console.log(currentStatus);
+		return currentStatus;
+	}
 }
 
 
