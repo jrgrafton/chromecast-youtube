@@ -130,13 +130,15 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		// Setup CDN video compatible MediaManager
 		this.currentMediaType_ = this.mediaTypes_.STANDARD;
 		this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+		this.hijackMediaEvents_();
 		this.mediaManager_['mediaOrigOnLoad'](event);
 		document.dispatchEvent(new Event("video-playing"));
 	} else {
 		// Setup Youtube compatible MediaManager
 		this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
 		this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
-
+		this.hijackMediaEvents_();
+		
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
