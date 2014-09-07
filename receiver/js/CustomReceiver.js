@@ -164,7 +164,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnMetadataLoadedEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnMetadataLoadedEvent_()");
 
-	console.error(JSON.stringify(this.mediaManager_.getMediaInformation());
+	console.error(JSON.stringify(this.mediaManager_.getMediaInformation()));
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		// Assume that autoplay is always true
 		var stateEvent =  new Event("video-playing");
