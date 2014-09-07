@@ -136,7 +136,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		window.youtubeWrapper.stopVideo();
 		this.mediaManager_['mediaOrigOnLoad'](event);
 
-		var stateEvent =  new Event("video-player");
+		var stateEvent =  new Event("video-playing");
 		// @TODO: This data should be sent over by the Sender for CDN videos
 		stateEvent.data = {
 			author : "Test author",
