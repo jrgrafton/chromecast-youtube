@@ -67,6 +67,8 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 
 	// Save original references
 	this.mediaManager_['mediaOrigOnLoad'] = this.mediaManager_.onLoad;
+	this.mediaManager_['mediaOrigOnMetadataLoaded'] =
+		this.mediaManager_.onMetadataLoaded;
 	this.mediaManager_['mediaOrigOnPause'] = this.mediaManager_.onPause;
 	this.mediaManager_['mediaOrigOnPlay'] = this.mediaManager_.onPlay;
 	this.mediaManager_['mediaOrigOnStop'] = this.mediaManager_.onStop;
@@ -77,6 +79,8 @@ CustomReceiver.prototype.hijackMediaEvents_ = function() {
 	this.mediaManager_.customizedStatusCallback = 
 		this.mediaCustomizedStatusCallbackEvent_.bind(this);
 	this.mediaManager_.onLoad = this.mediaOnLoadEvent_.bind(this);
+	this.mediaManager_.onMetadataLoaded =
+		this.mediaOnMetadataLoadedEvent_.bind(this);
 	this.mediaManager_.onPause = this.mediaOnPauseEvent_.bind(this);
 	this.mediaManager_.onPlay = this.mediaOnPlayEvent_.bind(this);
 	this.mediaManager_.onStop = this.mediaOnStopEvent_.bind(this);
@@ -138,15 +142,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.mediaManager_.setMediaElement(this.mediaElement_);
 		this.mediaManager_['mediaOrigOnLoad'](event);
 
-		var stateEvent =  new Event("video-playing");
-		// @TODO: This data should be sent over by the Sender for CDN videos
-		stateEvent.data = {
-			author : "Test author",
-			title : "Test video description",
-			videoProgress : "00:00",
-			videoLength : this.castReceiverManager_.getMediaInformation().duration,
-			image : "http://placehold.it/200x200"
-		}
+		var stateEvent =  new Event("video-loading");
 		document.dispatchEvent(stateEvent);
 
 		// Broadcast media information back to sender
@@ -162,6 +158,25 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
+	}
+}
+
+CustomReceiver.prototype.mediaOnMetadataLoadedEvent_ = function(event) {
+	console.debug("CustomReceiver.js: mediaOnMetadataLoadedEvent_()");
+
+	console.error(this.castReceiverManager_.getMediaInformation().metadata);
+	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
+		// Assume that autoplay is always true
+		var stateEvent =  new Event("video-playing");
+		// @TODO: This data should be sent over by the Sender for CDN videos
+		stateEvent.data = {
+			author : "Test video author",
+			title : "Test video description",
+			videoProgress : "00:00",
+			videoLength : this.castReceiverManager_.getMediaInformation().duration,
+			image : "http://placehold.it/200x200"
+		}
+		document.dispatchEvent(stateEvent);
 	}
 }
 
