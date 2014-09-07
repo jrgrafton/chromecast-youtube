@@ -164,7 +164,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 CustomReceiver.prototype.mediaOnMetadataLoadedEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnMetadataLoadedEvent_()");
 
-	console.error(this.castReceiverManager_.getMediaInformation().metadata);
+	console.error(this.mediaManager_.getMediaInformation().metadata);
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
 		// Assume that autoplay is always true
 		var stateEvent =  new Event("video-playing");
@@ -173,10 +173,11 @@ CustomReceiver.prototype.mediaOnMetadataLoadedEvent_ = function(event) {
 			author : "Test video author",
 			title : "Test video description",
 			videoProgress : "00:00",
-			videoLength : this.castReceiverManager_.getMediaInformation().duration,
+			videoLength : this.mediaManager_.getMediaInformation().duration,
 			image : "http://placehold.it/200x200"
 		}
 		document.dispatchEvent(stateEvent);
+		this.mediaManager_['mediaOrigOnMetadataLoaded'](event);
 	}
 }
 
@@ -235,7 +236,7 @@ CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSeekEvent_()");
 
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
-		var length = this.castReceiverManager_.getMediaInformation().duration;
+		var length = this.mediaManager_.getMediaInformation().duration;
 		var statusEvent = new Event("video-update-progress");
 		statusEvent.data = {
 			videoProgress : event.data.currentTime,
