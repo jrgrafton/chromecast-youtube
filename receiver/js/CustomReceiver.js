@@ -42,8 +42,7 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 		console.debug("CustomReceiver.js: getPlayerCurrentTimeSec()");
 		return this.getPlayerCurrentTimeSec();
 	}
-	//this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
-	this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
+	this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
 
 	// Default video type to be Youtube
 	this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
@@ -134,6 +133,9 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 
 		// Stop any already playing Youtube Video
 		window.youtubeWrapper.stopVideo();
+
+		// Set Media element as default video source
+		this.mediaManager_.setMediaElement(this.mediaElement_);
 		this.mediaManager_['mediaOrigOnLoad'](event);
 
 		var stateEvent =  new Event("video-playing");
@@ -156,6 +158,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.mediaElement_.src='';
 
 		// Load Youtube video
+		this.mediaManager_.setMediaElement(this.player_);
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
