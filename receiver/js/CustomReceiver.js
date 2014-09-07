@@ -177,6 +177,18 @@ CustomReceiver.prototype.mediaOnMetadataLoadedEvent_ = function(event) {
 			image : "http://placehold.it/200x200"
 		}
 		document.dispatchEvent(stateEvent);
+
+		// Broadcast information event back to sender
+		var mediaInformation = new cast.receiver.media.MediaInformation();
+		mediaInformation.contentId =
+			this.mediaManager_.getMediaInformation().contentId;
+		mediaInformation.duration =
+			this.mediaManager_.getMediaInformation().duration;
+		mediaInformation.metadata = {
+			author : "Test video author",
+			title : "Test video title"
+		}
+		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
 		this.mediaManager_['mediaOrigOnMetadataLoaded'](event);
 	}
 }
