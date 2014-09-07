@@ -144,7 +144,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			author : "Test author",
 			title : "Test video description",
 			videoProgress : "00:00",
-			videoLength : "??:??",
+			videoLength : this.castReceiverManager_.getMediaInformation().duration,
 			image : "http://placehold.it/200x200"
 		}
 		document.dispatchEvent(stateEvent);
