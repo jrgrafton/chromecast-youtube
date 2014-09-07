@@ -146,6 +146,9 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 			image : "http://placehold.it/200x200"
 		}
 		document.dispatchEvent(stateEvent);
+
+		// Broadcast media information back to sender
+		this.mediaManager_.broadcastStatus(true);
 	} else {
 		// Setup Youtube compatible MediaManager
 		this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
@@ -163,6 +166,7 @@ CustomReceiver.prototype.mediaOnPauseEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPauseEvent_()");
 
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
+		document.dispatchEvent(new Event("video-paused"));
 		this.mediaManager_['mediaOrigOnPause'](event);
 	} else {
 		var pauseListener = function(e) {
@@ -179,6 +183,7 @@ CustomReceiver.prototype.mediaOnPlayEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnPlayEvent_()");
 
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
+		document.dispatchEvent(new Event("video-playing"));
 		this.mediaManager_['mediaOrigOnPlay'](event);
 	} else {
 		var playListener = function(e) {
@@ -195,6 +200,7 @@ CustomReceiver.prototype.mediaOnStopEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnStopEvent_()");
 	
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
+		document.dispatchEvent(new Event("video-stopped"));
 		this.mediaManager_['mediaOrigOnStop'](event);
 	} else {
 		var unstartedListener = function() {
@@ -211,6 +217,13 @@ CustomReceiver.prototype.mediaOnSeekEvent_ = function(event) {
 	console.debug("CustomReceiver.js: mediaOnSeekEvent_()");
 
 	if(this.currentMediaType_ === this.mediaTypes_.STANDARD) {
+		var length = this.castReceiverManager_.getMediaInformation().duration;
+		var statusEvent = new Event("video-update-progress");
+		statusEvent.data = {
+			videoProgress : event.data.currentTime,
+			videoLength : length
+		}
+		document.dispatchEvent(statusEvent);
 		this.mediaManager_['mediaOrigOnSeek'](event);
 	} else {
 		var seekSeconds = event.data.currentTime;
