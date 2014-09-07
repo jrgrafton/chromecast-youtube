@@ -127,22 +127,32 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		this.mediaManager_['mediaOrigOnLoad'](event);
 	}.bind(this);
 
+	// @TODO: detection should be more intelligent than this
 	if(event.data.media.contentId.indexOf("mp4") !== -1) {
 		// Setup CDN video compatible MediaManager
 		this.currentMediaType_ = this.mediaTypes_.STANDARD;
-		//this.mediaManager_ = new cast.receiver.MediaManager(this.mediaElement_);
-		//this.hijackMediaEvents_();
 
-		//window.youtubeWrapper.stopVideo();
+		// Stop any already playing Youtube Video
+		window.youtubeWrapper.stopVideo();
 		this.mediaManager_['mediaOrigOnLoad'](event);
-		//this.mediaManager_['mediaOrigOnPlay'](event);
-		document.dispatchEvent(new Event("video-playing"));
+
+		var stateEvent =  new Event("video-player");
+		// @TODO: This data should be sent over by the Sender for CDN videos
+		stateEvent.data = {
+			author : "Test author",
+			title : "Test video description",
+			videoProgress : "00:00",
+			videoLength : "??:??",
+			image : "http://placehold.it/200x200"
+		}
+		document.dispatchEvent(stateEvent);
 	} else {
 		// Setup Youtube compatible MediaManager
 		this.currentMediaType_ = this.mediaTypes_.YOUTUBE;
-		this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
-		this.hijackMediaEvents_();
+		this.mediaElement_.pause();
+		this.mediaElement_.src='';
 
+		// Load Youtube video
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
