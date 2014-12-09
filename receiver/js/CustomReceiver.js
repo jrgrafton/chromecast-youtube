@@ -127,7 +127,8 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 		console.debug("CustomReceiver.js: sending load complete");
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		this.mediaManager_['mediaOrigOnLoad'](event);
+		//this.mediaManager_['mediaOrigOnLoad'](event);
+		this.mediaManager_.broadcastStatus(true);
 	}.bind(this);
 
 	// @TODO: detection should be more intelligent than this
@@ -140,7 +141,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 
 		// Set Media element as default video source
 		this.mediaManager_.setMediaElement(this.mediaElement_);
-		this.mediaManager_['mediaOrigOnLoad'](event);
+		//this.mediaManager_['mediaOrigOnLoad'](event);
 
 		var stateEvent =  new Event("video-loading");
 		document.dispatchEvent(stateEvent);
@@ -158,7 +159,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
-		this.mediaManager_['mediaOrigOnLoad'](event);
+		//this.mediaManager_['mediaOrigOnLoad'](event);
 	}
 }
 
