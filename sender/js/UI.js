@@ -77,9 +77,9 @@ UI.prototype.updateUI_ = function(media) {
 	    	this.updateInterval = setInterval(function() {
 	    		// Tried doing this with local times yet they would always
 	    		// get out of sync
-	    		/* $(document).trigger({
+	    		$(document).trigger({
 	        		type: "media-status-request"
-	    		}); */
+	    		});
 	    	}.bind(this), this.UPDATE_INTERVAL_TIME);
 	    } else if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
 	    	$("button.play").show();
@@ -242,12 +242,19 @@ UI.prototype.initResponders_ = function() {
 
 UI.prototype.respondMediaUpdated_ = function(data) {
 	console.debug("UI.js: respondMediaUpdated_()");
-	this.updateUI_(data.media);
+  if(data.isAlive === false) {
+    this.updateUI_(null);
+  }
+  else if(data.media !== null && data.media.media.metadata != null) {
+	   this.updateUI_(data.media);
+  }
 }
 
 UI.prototype.respondMediaLoaded_ = function(data) {
 	console.debug("UI.js: respondMediaLoaded_()");
-	this.updateUI_(data.media);
+  if(data.media.media !== null && data.media.media.metadata != null) {
+	 this.updateUI_(data.media);
+  }
 }
 
 UI.prototype.respondSessionUpdated_ = function(data) {

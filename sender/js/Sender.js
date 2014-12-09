@@ -122,7 +122,6 @@ Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
 
 Sender.prototype.ccMediaLoadedListener_ = function(media) {
     console.debug("Sender.js: ccMediaLoadedListener_()");
-    debugger;
 
     // Add update listener
     media.removeUpdateListener(this.ccMediaUpdatedListener_);
@@ -140,10 +139,9 @@ Sender.prototype.ccMediaLoadedListener_ = function(media) {
 
 Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccMediaUpdatedListener_()");
-    debugger;
 
     var media = null;
-    if(isAlive) {
+    if(isAlive && this.session_.media) {
         media = this.session_.media[0];
     }
 
@@ -276,7 +274,9 @@ Sender.prototype.respondMediaLoadRequest_ = function(data) {
     var request = new chrome.cast.media.LoadRequest(mediaInfo);
     request.autoplay = true;
     request.currentTime = 0;
-
+    
+    // Clear current media
+    this.session_.media = null;
     this.session_.loadMedia(request,
         function() {
             console.log("UI.js: Load request completed successfully");
