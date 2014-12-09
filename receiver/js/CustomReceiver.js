@@ -127,8 +127,6 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		}
 		console.debug("CustomReceiver.js: sending load complete");
 		this.mediaManager_.setMediaInformation(mediaInformation, true, {});
-		this.mediaManager_['mediaOrigOnLoad'](event);
-		this.mediaManager_.broadcastStatus(true);
 		this.mediaManager_.sendLoadComplete();
 	}.bind(this);
 
