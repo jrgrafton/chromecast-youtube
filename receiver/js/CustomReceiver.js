@@ -158,6 +158,7 @@ CustomReceiver.prototype.mediaOnLoadEvent_ = function(event) {
 		document.addEventListener("video-playing", playListener);
 		window.youtubeWrapper.loadVideo(event.data.media.contentId, 
 			event.data.currentTime, function() {});
+		this.mediaManager_['mediaOrigOnLoad'](event);
 	}
 }
 
