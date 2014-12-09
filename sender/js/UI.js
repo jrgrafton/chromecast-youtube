@@ -253,8 +253,10 @@ UI.prototype.respondSessionUpdated_ = function(data) {
 	console.debug("UI.js: respondSessionUpdated_()");
 
 	if(!data.isAlive) {
+    console.debug("UI.js: clearing UI")
 		$("button.connect").removeAttr("disabled", true);
 		this.updateUI_(null);
+    return;
 	} else {
 		$("button.connect").attr("disabled", true);
 		$("button.load").removeAttr("disabled");
