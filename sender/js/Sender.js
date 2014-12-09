@@ -141,7 +141,7 @@ Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccMediaUpdatedListener_()");
 
     var media = null;
-    if(isAlive && this.session_.media) {
+    if(isAlive && this.session_.media.length > 0) {
         media = this.session_.media[0];
     }
 
@@ -276,7 +276,7 @@ Sender.prototype.respondMediaLoadRequest_ = function(data) {
     request.currentTime = 0;
     
     // Clear current media
-    this.session_.media = null;
+    this.session_.media = [];
     this.session_.loadMedia(request,
         function() {
             console.log("UI.js: Load request completed successfully");

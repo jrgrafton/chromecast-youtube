@@ -131,6 +131,9 @@ and (max-width: 1919px) {
 	}
 }
 
+.screen-video {
+  background: black;
+}
 .screen-video #ytplayer {
 	width: 100%;
 	height: 100%;
