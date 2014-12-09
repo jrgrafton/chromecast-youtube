@@ -77,9 +77,9 @@ UI.prototype.updateUI_ = function(media) {
 	    	this.updateInterval = setInterval(function() {
 	    		// Tried doing this with local times yet they would always
 	    		// get out of sync
-	    		$(document).trigger({
+	    		/* $(document).trigger({
 	        		type: "media-status-request"
-	    		});
+	    		}); */
 	    	}.bind(this), this.UPDATE_INTERVAL_TIME);
 	    } else if(media.playerState === chrome.cast.media.PlayerState.PAUSED) {
 	    	$("button.play").show();
@@ -179,6 +179,7 @@ UI.prototype.commandStop_ = function(element, trigger) {
 
 UI.prototype.commandLoad_ = function(element, trigger) {
 	console.debug("UI.js: commandLoad_()");
+  clearInterval(this.updateInterval);
 
 	// Disable all elements during load
 	$("button").attr("disabled", true);

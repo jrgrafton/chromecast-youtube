@@ -122,10 +122,14 @@ Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
 
 Sender.prototype.ccMediaLoadedListener_ = function(media) {
     console.debug("Sender.js: ccMediaLoadedListener_()");
+    debugger;
 
     // Add update listener
     media.removeUpdateListener(this.ccMediaUpdatedListener_);
     media.addUpdateListener(this.ccMediaUpdatedListener_.bind(this));
+
+    // Update session with new media
+    this.session_.media = [media];
 
     // Broadcast event through DOM
     $(document).trigger({
@@ -136,6 +140,8 @@ Sender.prototype.ccMediaLoadedListener_ = function(media) {
 
 Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccMediaUpdatedListener_()");
+    debugger;
+
     var media = null;
     if(isAlive) {
         media = this.session_.media[0];
