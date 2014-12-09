@@ -7,7 +7,7 @@ html, body {
 }
 
 .controls #videoID {
-	width: 130px;
+	width: 115px;
 }
 
 .controls .play {
@@ -32,11 +32,13 @@ html, body {
 	display: inline;
 	position: absolute;
 	top: -60px;
+	right: 25px;
 }
 
 .controls .current-volume {
-	left: 2.25em;
-	position: relative;
-	font-weight: bold;;
+	position: absolute;
+	font-weight: bold;
+	right: 10px;
+	bottom: 10px;
 }
 
