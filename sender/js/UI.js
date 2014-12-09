@@ -21,7 +21,6 @@ UI.prototype.updateUI_ = function(media) {
 	console.debug("UI.js: updateUI_()");
 
 	// Recreate progress update interval every time UI is updated
-	console.log("UI.js: clearing update interval");
 	clearInterval(this.updateInterval);
 
 	if(media === null ||
@@ -261,7 +260,7 @@ UI.prototype.respondSessionUpdated_ = function(data) {
 		$("button.connect").attr("disabled", true);
 		$("button.load").removeAttr("disabled");
 	}
-	if(data.session.media.length > 0) {
+	if(data.session && data.session.media.length > 0) {
 		this.updateUI_(data.session.media[0]);
 	}
 }

@@ -62,6 +62,11 @@ Sender.prototype.ccCreateSession_ = function() {
 Sender.prototype.ccCreateSessionFailure_ = function(e) {
     console.debug("Sender.js: ccCreateSessionFailure_()");
     console.error(e);
+    $(document).trigger({
+        type: "session-updated",
+        session: this.session_,
+        isAlive: false
+    });
 }
 
 
@@ -106,6 +111,7 @@ Sender.prototype.ccSessionCreatedListener_ = function(session) {
 
 Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccSessionUpdatedListener_(" + isAlive + ")");
+    debugger;
 
     // Broadcast event through DOM
     $(document).trigger({
