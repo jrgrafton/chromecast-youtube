@@ -1,5 +1,5 @@
 window.addEventListener('load',function() {
-	var DEBUG = true;
+	var DEBUG = false;
 
 	// Turn off logging when not in debugging
 	if(!DEBUG) {

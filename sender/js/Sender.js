@@ -111,7 +111,6 @@ Sender.prototype.ccSessionCreatedListener_ = function(session) {
 
 Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccSessionUpdatedListener_(" + isAlive + ")");
-    debugger;
 
     // Broadcast event through DOM
     $(document).trigger({
@@ -128,6 +127,9 @@ Sender.prototype.ccMediaLoadedListener_ = function(media) {
     media.removeUpdateListener(this.ccMediaUpdatedListener_);
     media.addUpdateListener(this.ccMediaUpdatedListener_.bind(this));
 
+    // Update session with new media
+    this.session_.media = [media];
+
     // Broadcast event through DOM
     $(document).trigger({
         type: "media-loaded",
@@ -137,8 +139,9 @@ Sender.prototype.ccMediaLoadedListener_ = function(media) {
 
 Sender.prototype.ccMediaUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccMediaUpdatedListener_()");
+
     var media = null;
-    if(isAlive) {
+    if(isAlive && this.session_.media.length > 0) {
         media = this.session_.media[0];
     }
 
@@ -203,10 +206,10 @@ Sender.prototype.respondMediaPlayRequest_ = function() {
     // state change back to requesting entity
     this.session_.media[0].play(new chrome.cast.media.PauseRequest(),
         function() {
-            console.log("Play request completed successfully");
+            console.log("UI.js: Play request completed successfully");
         },
         function(e) {
-            console.log("Play request failed");
+            console.log("UI.js: Play request failed");
             console.error(e);
         }
     )
@@ -219,10 +222,10 @@ Sender.prototype.respondMediaPauseRequest_ = function() {
     // state change back to requesting entity
     this.session_.media[0].pause(new chrome.cast.media.PlayRequest(),
         function() {
-            console.log("Pause request completed successfully");
+            console.log("UI.js: Pause request completed successfully");
         },
         function(e) {
-            console.log("Pause request failed");
+            console.log("UI.js: Pause request failed");
             console.error(e);
         }
     )
@@ -237,10 +240,10 @@ Sender.prototype.respondMediaSeekRequest_ = function(data) {
     request.currentTime = data.seconds;
     this.session_.media[0].seek(request,
         function() {
-            console.log("Seek request completed successfully");
+            console.log("UI.js: Seek request completed successfully");
         },
         function(e) {
-            console.log("Seek request failed");
+            console.log("UI.js: Seek request failed");
             console.error(e);
         }
     )
@@ -253,10 +256,10 @@ Sender.prototype.respondMediaStopRequest_ = function() {
     // state change back to requesting entity
     this.session_.media[0].stop(new chrome.cast.media.StopRequest(),
         function() {
-            console.log("Stop request completed successfully");
+            console.log("UI.js: Stop request completed successfully");
         },
         function(e) {
-            console.log("Stop request failed");
+            console.log("UI.js: Stop request failed");
             console.error(e);
         }
     )
@@ -271,13 +274,15 @@ Sender.prototype.respondMediaLoadRequest_ = function(data) {
     var request = new chrome.cast.media.LoadRequest(mediaInfo);
     request.autoplay = true;
     request.currentTime = 0;
-
+    
+    // Clear current media
+    this.session_.media = [];
     this.session_.loadMedia(request,
         function() {
-            console.log("Load request completed successfully");
+            console.log("UI.js: Load request completed successfully");
         },
         function(e) {
-            console.log("Load request failed");
+            console.log("UI.js: Load request failed");
             console.error(e);
         }
     )
@@ -290,27 +295,27 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
     // state change back to requesting entity
     this.session_.setReceiverVolumeLevel(data.volume,
         function() {
-            console.log("Volume request completed successfully");
+            console.log("UI.js: Volume request completed successfully");
         }.bind(this),
         function(e) {
-            console.log("Volume request failed");
+            console.log("UI.js: Volume request failed");
             console.error(e);
         }
     )
 }
 
 Sender.prototype.respondMediaStatusRequest_ = function(data) {
-    console.debug("Sender.js: respondMediaVolumeRequest_()");
+    console.debug("Sender.js: respondMediaStatusRequest_()");
 
     // Media update listener will dispatch 
     // state change back to requesting entity
     var request = chrome.cast.media.GetStatusRequest();
     this.session_.media[0].getStatus(request,
         function(media) {
-            console.log("Status request completed successfully");
+            console.log("UI.js: Status request completed successfully");
         }.bind(this),
         function(e) {
-            console.log("Status request failed");
+            console.log("UI.js: Status request failed");
             console.error(e);
         }
     )

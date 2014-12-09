@@ -179,6 +179,7 @@ UI.prototype.commandStop_ = function(element, trigger) {
 
 UI.prototype.commandLoad_ = function(element, trigger) {
 	console.debug("UI.js: commandLoad_()");
+  clearInterval(this.updateInterval);
 
 	// Disable all elements during load
 	$("button").attr("disabled", true);
@@ -241,21 +242,29 @@ UI.prototype.initResponders_ = function() {
 
 UI.prototype.respondMediaUpdated_ = function(data) {
 	console.debug("UI.js: respondMediaUpdated_()");
-	this.updateUI_(data.media);
+  if(data.isAlive === false) {
+    this.updateUI_(null);
+  }
+  else if(data.media !== null && data.media.media.metadata != null) {
+	   this.updateUI_(data.media);
+  }
 }
 
 UI.prototype.respondMediaLoaded_ = function(data) {
 	console.debug("UI.js: respondMediaLoaded_()");
-	this.updateUI_(data.media);
+  if(data.media.media !== null && data.media.media.metadata != null) {
+	 this.updateUI_(data.media);
+  }
 }
 
 UI.prototype.respondSessionUpdated_ = function(data) {
 	console.debug("UI.js: respondSessionUpdated_()");
-	console.log(data);
 
 	if(!data.isAlive) {
+    console.debug("UI.js: clearing UI")
 		$("button.connect").removeAttr("disabled", true);
 		this.updateUI_(null);
+    return;
 	} else {
 		$("button.connect").attr("disabled", true);
 		$("button.load").removeAttr("disabled");
