@@ -300,7 +300,8 @@ Sender.prototype.respondMediaVolumeRequest_ = function(data) {
 }
 
 Sender.prototype.respondMediaStatusRequest_ = function(data) {
-    console.debug("Sender.js: respondMediaVolumeRequest_()");
+    return;
+    console.debug("Sender.js: respondMediaStatusRequest_()");
 
     // Media update listener will dispatch 
     // state change back to requesting entity

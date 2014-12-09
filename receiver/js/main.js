@@ -1,5 +1,5 @@
 window.onload = function() {
-	var DEBUG = false;
+	var DEBUG = true;
 
 	// Turn off logging when not in debugging
 	if(!DEBUG) {
