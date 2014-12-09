@@ -251,7 +251,6 @@ UI.prototype.respondMediaLoaded_ = function(data) {
 
 UI.prototype.respondSessionUpdated_ = function(data) {
 	console.debug("UI.js: respondSessionUpdated_()");
-	console.log(data);
 
 	if(!data.isAlive) {
 		$("button.connect").removeAttr("disabled", true);

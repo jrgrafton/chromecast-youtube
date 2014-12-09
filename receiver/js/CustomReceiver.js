@@ -41,7 +41,7 @@ CustomReceiver.prototype.initialiseMediaManagement_ = function() {
 	this.player_.getPlayerCurrentTimeSec = function() {
 		console.debug("CustomReceiver.js: getPlayerCurrentTimeSec()");
 		return this.getPlayerCurrentTimeSec();
-	}
+	}.bind(this);
 	this.mediaManager_ = new cast.receiver.MediaManager(this.player_);
 
 	// Default video type to be Youtube

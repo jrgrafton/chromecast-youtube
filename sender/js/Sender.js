@@ -111,7 +111,6 @@ Sender.prototype.ccSessionCreatedListener_ = function(session) {
 
 Sender.prototype.ccSessionUpdatedListener_ = function(isAlive) {
     console.debug("Sender.js: ccSessionUpdatedListener_(" + isAlive + ")");
-    debugger;
 
     // Broadcast event through DOM
     $(document).trigger({
