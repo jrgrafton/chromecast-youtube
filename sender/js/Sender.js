@@ -309,7 +309,7 @@ Sender.prototype.respondMediaStatusRequest_ = function(data) {
 
     // Media update listener will dispatch 
     // state change back to requesting entity
-    var request = chrome.cast.media.GetStatusRequest();
+    var request = new chrome.cast.media.GetStatusRequest();
     this.session_.media[0].getStatus(request,
         function(media) {
             console.log("UI.js: Status request completed successfully");
